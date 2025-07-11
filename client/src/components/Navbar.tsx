@@ -77,13 +77,13 @@ const Navbar = ({ loggedIn } : NavbarProps) => {
                         <div className='flex-shrink-0 space-x-2'>
                             {!isLoginPage && (
                                 <Link to="/login" 
-                                className='bg-blue-600 text-white font-bold px-8 py-2 hover:bg-blue-800 transition'>
+                                className='bg-blue-600 text-white font-bold px-8 py-2 hover:bg-blue-700 transition'>
                                     ВХОД
                                 </Link>
                             )}
                             {!isRegisterPage && (
                                 <Link to="/register"
-                                className='bg-gray-200 text-black font-bold px-8 py-2 hover:bg-blue-800 hover:text-white transition'>
+                                className='bg-gray-200 text-black font-bold px-8 py-2 hover:bg-blue-700 hover:text-white transition'>
                                     РЕГИСТРАЦИЯ
                                 </Link>
                             )}

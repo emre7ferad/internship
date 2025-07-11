@@ -208,7 +208,7 @@ const handleFullNameCyrillicChange = (e: React.ChangeEvent<HTMLInputElement>) =>
             label="ЛНЧ или паспорт:" 
             name="lnch" 
             tooltip={[
-                "Попълва се само от чуждестранни граждани"
+                "Попълва се само от чуждестранни граждани."
             ]}/>
         <Input 
         label="Име и фамилия на кирилица:" 
