@@ -1,6 +1,6 @@
 const Footer = () => {
     return (
-        <footer className='bg-gray-100 w-full text-gray-700 bottom-0 py-4 mt-5'>
+        <footer className='bg-gray-100 w-full text-gray-700 bottom-0 py-4'>
             <div className='flex justify-center space-x-6 text-sm'>
                 <a href="#" className='hover:underline'>Как да добавя сметка &gt;</a>
                 <span className='text-gray-300'>|</span>
