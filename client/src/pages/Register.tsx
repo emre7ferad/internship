@@ -337,7 +337,7 @@ const handleFullNameCyrillicChange = (e: React.ChangeEvent<HTMLInputElement>) =>
 
         <button
           type="submit"
-          className='w-full text-white py-2 px-4 rounded transition duration-200 bg-blue-600'
+          className='w-full text-white py-2 px-4 cursor-pointer rounded transition duration-200 hover:bg-blue-600 bg-blue-800'
         >
           ИЗПРАТЕТЕ ИСКАНЕ ЗА РЕГИСТРАЦИЯ
         </button>
