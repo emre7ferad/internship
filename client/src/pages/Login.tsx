@@ -36,16 +36,19 @@ const Login: React.FC<LoginProps> = ({ setLoggedIn }) => {
 
             const data = response.data;
 
-            if(response.status !== 200) {
-                const errorMsg = data.error || 'Грешка при вход';
-                setErrors((prev) => ({...prev, general: errorMsg}));
+            localStorage.setItem('token', data.token);
+            setLoggedIn(true)
+            navigate ('/dashboard')
+        } catch (err: any) {
+            if (err.response && err.response.status === 401) {
+                // Show backend error message if present, otherwise show default
+                setErrors((prev) => ({
+                    ...prev,
+                    general: err.response.data?.error || "Невалиден потребител или парола"
+                }));
             } else {
-                localStorage.setItem('token', data.token);
-                setLoggedIn(true);
-                navigate('/dashboard');
+                setGeneralError('Сървърна грешка. Опитайте по-късно.');
             }
-        } catch (err) {
-            setGeneralError('Сървърна грешка. Опитайте по-късно.');
         }
 
     }
@@ -103,7 +106,14 @@ const Login: React.FC<LoginProps> = ({ setLoggedIn }) => {
                             />
 
                             {errors.general && (
-                             <div className="text-red-600 text-sm flex items-center gap-1 mb-2"> {errors.general} </div>
+                                <div className="text-red-600 text-sm flex items-center gap-1 mb-2">
+                                    {errors.general}
+                                </div>
+                            )}
+                            {generalError && (
+                                <div className="text-red-600 text-sm flex items-center gap-1 mb-2">
+                                    {generalError}
+                                </div>
                             )}
 
                             <a href="#" className="text-sm text-gray-500 mt-0 mb-4 block hover:underline">Забравена парола?</a>
