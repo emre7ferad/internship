@@ -1,1 +1,8 @@
 @import "tailwindcss";
+
+.custom-li-hover{
+   @apply  cursor-pointer hover:bg-gray-200 hover:text-blue-800 py-2 px-2;
+}
+.custom-li{
+    @apply cursor-pointer py-2 hover:text-blue-800 px-2;
+}

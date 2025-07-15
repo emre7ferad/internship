@@ -1,6 +1,11 @@
 import React, { useState } from "react"
+import { useNavigate } from "react-router-dom"
+import axios from 'axios';
 
 const Register = () => {
+
+  const navigate = useNavigate();
+
   const [password, setPassword] = useState("")
   const [strength, setStrength] = useState(0)
   const [confirmPassword, setConfirmPassword] = useState("")
@@ -14,38 +19,67 @@ const Register = () => {
   const [address, setAddress] = useState("")
   const [username, setUsername] = useState("")
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-
-    const newErrors = {
-      egn: !egn.trim() ? "Моля въведете ЕГН!" : errors.egn || "",
-      fullNameCyrillic: !fullNameCyrillic.trim() ? "Моля въведете име!" : errors.fullNameCyrillic || "",
-      fullNameLatin: !fullNameLatin.trim() ? "Моля въведете име на латиница" : errors.fullNameLatin || "",
-      email: !email.trim() ? "Моля въведете E-Mail!" : errors.email || "",
-      phone: !phone.trim() ? "Моля въведете телефон!" : errors.phone || "",
-      address: !address.trim() ? "Моля въведете адрес!" : errors.address || "",
-      username: !username.trim() ? "Моля въведете потребителско име!" : errors.username || "",
-      password: !password.trim() 
+  
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  
+  const newErrors = {
+    egn: !egn.trim() ? "Моля въведете ЕГН!" : "",
+    fullNameCyrillic: !fullNameCyrillic.trim() ? "Моля въведете име!" : "",
+    fullNameLatin: !fullNameLatin.trim() ? "Моля въведете име на латиница!" : "",
+    email: !email.trim() ? "Моля въведете E-Mail!" : "",
+    phone: !phone.trim() ? "Моля въведете телефон!" : "",
+    address: !address.trim() ? "Моля въведете адрес!" : "",
+    username: !username.trim() ? "Моля въведете потребителско име!" : "",
+    password: !password.trim()
       ? "Моля въведете парола!"
       : !isPasswordValid(password, strength)
       ? "Паролата не отговаря на изискванията"
       : "",
       confirmPassword: !confirmPassword.trim()
-        ? "Моля повторете паролата!"
-        : confirmPassword !== password
-        ? "Паролите не съвпадат"
-        : "",
+      ? "Моля повторете паролата!"
+      : confirmPassword !== password
+      ? "Паролите не съвпадат"
+      : ""
+  };
+  
+  setErrors(newErrors);
+  
+  const hasErrors = Object.values(newErrors).some(error => error && error.length > 0);
+  if (hasErrors) return;
+  
+  const lnchInput = document.querySelector('input[name="lnch"]') as HTMLInputElement;
+  
+  const userData = {
+    egn,
+    nameCyrillic: fullNameCyrillic,
+    nameLatin: fullNameLatin,
+    email,
+    phone,
+    address,
+    username,
+    password,
+    isAdmin: false,
+    lnch: lnchInput?.value || undefined
+  };
+  
+  try {
+    const response = await axios.post('http://localhost:5000/api/users', userData);
+    const result = response.data;
+  
+    if (response.status === 200 || response.status === 201) {
+      console.log('User registered:', result);
+      navigate('/login');
+    } else {
+      console.error('Registration failed:', result.error);
+      alert(`Грешка при регистрация: ${result.error}`);
     }
-
-    setErrors(newErrors)
-
-    const hasErrors = Object.values(newErrors).some(error => error && error.length > 0)
-
-    if (hasErrors) return
-
-    console.log("Формата е валидна");
-    
+  } catch (err) {
+    console.error('Error submitting form:', err);
+    alert('Възникна грешка при изпращане на формата.');
   }
+  };
+  
 
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
@@ -54,7 +88,7 @@ const Register = () => {
       setErrors(prev => ({...prev, username: "Моля въведете потребителско име!"}))
     } else if (/[\u0400-\u04FF]/.test(value)){
       setErrors(prev => ({...prev, username: "Символи на кирилица не са позволени!"}))
-    } else {
+    } else {  
       setErrors(prev => ({...prev, username: ""}))
     }
   }
