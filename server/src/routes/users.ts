@@ -1,8 +1,11 @@
 import express from 'express';
 import User from '../models/User';
 import bcrypt from 'bcryptjs';
+import { authenticateToken } from '../middleware/authMiddleware';
 
 const router = express.Router();
+
+router.use(authenticateToken);
 
 router.post('/login', async(req, res) => {
     const { username, password } = req.body;

@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import express, { Request, Response } from 'express';
 import { upload } from "../utils/cloudinary";
 
+
 const router = express.Router();
 
 router.post('/upload', upload.single('image'), (req, res) => {
@@ -53,6 +54,14 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: false
     },
+    notifications: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Notification'
+    }],
+    messages: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Message'
+    }],
     createdAt: {
         type: Date,
         default: Date.now

@@ -9,7 +9,7 @@ import { useState } from 'react';
 
 
 function App() {
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(() => !!localStorage.getItem('token'));
 
   const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
     const token = localStorage.getItem('token');
@@ -17,9 +17,10 @@ function App() {
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen">
+    <div className="bg-gray-50 min-h-screen">
       <Navbar loggedIn={loggedIn} setLoggedIn={setLoggedIn}/>
       <Routes>
+        <Route path='/' element={<Navigate to='/login' replace/>}/>
         <Route path='/register' element={<Register/>}/>
         <Route path='/login' element={<Login setLoggedIn={setLoggedIn}/>}/>
         <Route path='/dashboard' element={

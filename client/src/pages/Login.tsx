@@ -77,11 +77,11 @@ const Login: React.FC<LoginProps> = ({ setLoggedIn }) => {
 
     return (
         <div>
-            <div className="flex justify-center items-center mt-10">
+            <div className="flex flex-col md:flex-row justify-center  mt-6 md:mt-10 px-2 md:px-0">
                 {/*Left side*/}
-                <div className="mx-20">
+                <div className="w-full max-w-md md:mx-20 mb-6 md-mb-0">
                     {/*Login form section*/}
-                    <div className="border border-gray-300 p-6 rounded-lg">
+                    <div className="border border-gray-300 p-4 md:p-6 rounded-lg">
                         <form noValidate onSubmit={handleSubmit}>
                             <h1 className="text-xl mb-4">Виртуален банков клон (e-Fibank)</h1>
                             <Input
@@ -126,7 +126,7 @@ const Login: React.FC<LoginProps> = ({ setLoggedIn }) => {
                     </div>
 
                     {/*section 2*/}
-                    <div className="items-center mt-3 border border-gray-300 p-2 rounded-lg w-full">
+                    <div className="mt-3 border border-gray-300 p-4 md:p-6 rounded-lg">
                         <h2 className="text-center">Защитен вход със <a href="#" className="text-blue-800">SSL сертификат</a> от: </h2>
                         <div className="justify-center my-2 flex items-center space-x-2">
                             <a href="#" className="inline-block">
@@ -149,25 +149,25 @@ const Login: React.FC<LoginProps> = ({ setLoggedIn }) => {
                 </div>
 
                 {/*Right side*/}
-                <div>
-                    <section className="mx-20 font-sans">
+                <div className="w-full max-w-md md:mx-20 md:pr-26">
+                    <section className="font-sans">
                         <div className="my-2">    
                             <h2 className="text-2xl mb-2">ВАЖНО!</h2>
-                            <p className="text-gray-600">ПИБ АД УВЕДОМЯВА КАРТОДЪРЖАТЕЛИТЕ <br />си, че има информация за получени фалшиви <br />съобщения по електронната поща, които... <br /></p>
+                            <p className="text-gray-600">ПИБ АД УВЕДОМЯВА КАРТОДЪРЖАТЕЛИТЕ си, че има информация за получени фалшиви съобщения по електронната поща, които...</p>
                             <a href="#" className="mt-2 mb-4 block hover:underline hover:text-blue-800">Прочетете повече&gt;</a>
                             <hr className="text-gray-300"/>
                         </div>
 
                         <div className="my-2">
                             <h2 className="text-2xl mb-2">Разгледайте системата</h2>
-                            <p className="text-gray-600">Разгледайте и усетете онлайн банкирането <br />чрез интерактивната ни демо версия. <br /></p>
+                            <p className="text-gray-600">Разгледайте и усетете онлайн банкирането чрез интерактивната ни демо версия.</p>
                             <a href="#" className="mt-2 mb-4 block text-blue-800 font-semibold hover:underline">ДЕМО ВЕРСИЯ&gt;</a>
                             <hr className="text-gray-300 "/>
                         </div>
 
                         <div className="my-2">
                             <h2 className="text-2xl mb-2">Банкиране с Token</h2>
-                            <p className="text-gray-600">Мобилност, удобство и сигурност в едно, <br />с нашето Token устройство за генериране <br />на еднократни пароли за вход. <br /></p>
+                            <p className="text-gray-600">Мобилност, удобство и сигурност в едно, с нашето Token устройство за генериране на еднократни пароли за вход.</p>
                             <a href="#" className="mt-2 mb-4 block hover:underline hover:text-blue-800">Научете повече&gt;</a>
                         </div>
                     </section>

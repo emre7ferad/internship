@@ -6,3 +6,9 @@
 .custom-li{
     @apply cursor-pointer py-2 hover:text-blue-800 px-2;
 }
+.table-td{
+    @apply px-4 py-2 border-r border-gray-300;
+}
+.aside-submenu{
+    @apply pl-2 py-2 hover:bg-gray-100 hover:text-blue-800;
+}

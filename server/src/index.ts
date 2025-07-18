@@ -1,9 +1,11 @@
-import express from 'express'
-import dotenv from 'dotenv'
-import cors from 'cors'
-import mongoose from 'mongoose'
-import userRoutes from './routes/users'
+import express from 'express';
+import dotenv from 'dotenv';
+import cors from 'cors';
+import mongoose from 'mongoose';
+import userRoutes from './routes/users';
 import authRoutes from './routes/auth';
+import messageRoutes from './routes/messages';
+import notificationRoutes from './routes/notifications'
 
 dotenv.config();
 
@@ -23,7 +25,8 @@ app.use(express.json())
 
 app.use('/api/users', userRoutes)
 app.use('/api/auth', authRoutes)
-
+app.use('/messages', messageRoutes)
+app.use('/notifications', notificationRoutes)
 app.get('/', (_req, res) => {
   res.send('API is running...')
 })
