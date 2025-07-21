@@ -5,17 +5,14 @@ import { BiMessageError } from "react-icons/bi";
 import ContactsFooter from "../components/ContactsFooter";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 
-type LoginProps = {
-    setLoggedIn: (value: boolean) => void;
-};
-
-const Login: React.FC<LoginProps> = ({ setLoggedIn }) => {
+const Login: React.FC = () => {
     const [errors, setErrors] = useState<{ [key: string]: string }>({})
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const [generalError, setGeneralError] = useState('')
-
+    const auth = useAuth();
     const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -35,10 +32,9 @@ const Login: React.FC<LoginProps> = ({ setLoggedIn }) => {
             const response = await axios.post('http://localhost:5000/api/auth/login', {username, password });
 
             const data = response.data;
-
-            localStorage.setItem('token', data.token);
-            setLoggedIn(true)
-            navigate ('/dashboard')
+            
+            auth.login(data.token);
+            navigate ('/dashboard');
         } catch (err: any) {
             if (err.response && err.response.status === 401) {
                 // Show backend error message if present, otherwise show default

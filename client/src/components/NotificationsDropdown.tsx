@@ -4,10 +4,11 @@ interface DropdownProps {
     label: string;
     icon?: React.ReactNode;
     children: React.ReactNode;
+    unreadCount?: number;
 }
 
-const NotificationsDropdown: React.FC<DropdownProps> = ({ label, icon, children}) => {
-    const [ clickOpen, setClickOpen ] = useState(false);
+const NotificationsDropdown: React.FC<DropdownProps> = ({ label, icon, children, unreadCount = 0 }) => {
+    const [clickOpen, setClickOpen] = useState(false);
     const itemRef = useRef<HTMLLIElement>(null);
 
     useEffect(() => {
@@ -25,13 +26,19 @@ const NotificationsDropdown: React.FC<DropdownProps> = ({ label, icon, children}
         };
     }, [clickOpen]);
 
-    return(
-        <li
-        ref={itemRef}
-        className="relative list-none">
-            <div className="relative flex items-center space-x-1 cursor-pointer hover:text-blue-800"
-            onClick={() => setClickOpen((prev) => !prev)}>
-                {icon && <span className="text-lg">{icon}</span>}
+    const displayCount = unreadCount > 9 ? '9+' : unreadCount;
+
+    return (
+        <li ref={itemRef} className="relative list-none">
+            <div className="relative flex items-center space-x-1 cursor-pointer hover:text-blue-800" onClick={() => setClickOpen((prev) => !prev)}>
+                <div className="relative">
+                    {icon && <span className="text-lg">{icon}</span>}
+                    {unreadCount > 0 && (
+                        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                            {displayCount}
+                        </span>
+                    )}
+                </div>
                 <span>{label}</span>
             </div>
 
@@ -44,4 +51,4 @@ const NotificationsDropdown: React.FC<DropdownProps> = ({ label, icon, children}
     );
 };
 
-export default NotificationsDropdown
+export default NotificationsDropdown;

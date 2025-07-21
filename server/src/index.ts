@@ -6,6 +6,8 @@ import userRoutes from './routes/users';
 import authRoutes from './routes/auth';
 import messageRoutes from './routes/messages';
 import notificationRoutes from './routes/notifications'
+import accountRoutes from './routes/accounts'
+import transactionRoutes from './routes/transactions';
 
 dotenv.config();
 
@@ -27,6 +29,8 @@ app.use('/api/users', userRoutes)
 app.use('/api/auth', authRoutes)
 app.use('/messages', messageRoutes)
 app.use('/notifications', notificationRoutes)
+app.use('/api/accounts', accountRoutes);
+app.use('/api/transactions', transactionRoutes);
 app.get('/', (_req, res) => {
   res.send('API is running...')
 })

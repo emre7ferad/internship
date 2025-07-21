@@ -8,10 +8,10 @@ const router = express.Router();
 router.use(authenticateToken);
 
 router.post('/', async (req, res) => {
-    const { userId, content } = req.body;
+    const { userId, title, content } = req.body;
 
     try {
-        const notification = new Notification({ user: userId, content });
+        const notification = new Notification({ user: userId, title, content });
         await notification.save();
 
         await User.findByIdAndUpdate(userId, { $push: { notifications: notification._id } });

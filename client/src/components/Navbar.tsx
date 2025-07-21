@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { FaEnvelope, FaBell, FaCog, FaPowerOff, FaClipboardList, FaDesktop, FaUser, FaLock, FaPenNib, FaUnlock, FaPhoneAlt, FaTimes, FaBars, FaCreditCard } from 'react-icons/fa';
+import { FaEnvelope, FaBell, FaCog, FaPowerOff, FaClipboardList, FaDesktop, FaUser, FaLock, FaPenNib, FaUnlock, FaPhoneAlt, FaTimes, FaBars } from 'react-icons/fa';
 import { MdEdit, MdEditDocument, MdOutlineQuestionMark } from 'react-icons/md';
 import { BsInfoLg } from "react-icons/bs";
 import DropdownItem from './Dropdown';
@@ -8,31 +8,93 @@ import { PiCreditCardFill } from 'react-icons/pi';
 import { TbBadge3DFilled, TbKeyFilled } from 'react-icons/tb';
 import { HiCreditCard } from 'react-icons/hi';
 import { FiBell } from 'react-icons/fi';
-import { IoDocumentText, IoPhonePortrait, IoTicket } from 'react-icons/io5';
+import { IoDocumentText, IoPhonePortrait } from 'react-icons/io5';
 import { GoRepoLocked } from 'react-icons/go';
 import MobileAppPopover from './MobileAppPopover';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import NotificationsDropdown from './NotificationsDropdown';
-import { IoIosPaper } from 'react-icons/io';
+import NotificationsList from './NotificationsList';
+import { useAuth } from '../context/AuthContext';
 
-type NavbarProps = {
-    loggedIn: boolean;
-    setLoggedIn: (value: boolean) => void;
+interface Notification {
+  _id: string;
+  title: string;
+  content: string;
+  read: boolean;
+  date: Date;
 }
-const Navbar: React.FC<NavbarProps> = ({ loggedIn, setLoggedIn }) => {
+
+const Navbar: React.FC = () => {
     const location = useLocation();
-    const isLoginPage = location.pathname === '/login'
-    const isRegisterPage = location.pathname === '/register'
+    const isLoginPage = location.pathname === '/login';
+    const isRegisterPage = location.pathname === '/register';
     const navigate = useNavigate();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const { user, token, logout } = useAuth();
+    const [notifications, setNotifications] = useState<Notification[]>([]);
+
+    useEffect(() => {
+        if (!user || !token) {
+            setNotifications([]);
+            return;
+        };
+
+        const fetchNotifications = async () => {
+            try {
+                const response = await fetch(`http://localhost:5000/notifications/${user.userId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` },
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setNotifications(data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch notifications:", error);
+            }
+        };
+
+        fetchNotifications();
+        const interval = setInterval(fetchNotifications, 30000);
+        return () => clearInterval(interval);
+    }, [user, token]);
+
+    const handleMarkAsRead = async (notificationId: string) => {
+        // Optimistically update the UI for a better user experience
+        setNotifications(prev => prev.map(n => n._id === notificationId ? { ...n, read: true } : n));
+        try {
+            await fetch(`http://localhost:5000/notifications/${notificationId}/read`, {
+                method: 'PATCH',
+                headers: { 'Authorization': `Bearer ${token}` },
+            });
+        } catch (error) {
+            // If the API call fails, revert the change (optional)
+            console.error("Failed to mark as read:", error);
+            // You could add logic here to revert the optimistic update if needed
+        }
+    };
+
+    const handleDelete = async (notificationId: string) => {
+        // Optimistically update the UI
+        setNotifications(prev => prev.filter(n => n._id !== notificationId));
+        try {
+            await fetch(`http://localhost:5000/notifications/${notificationId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` },
+            });
+        } catch (error) {
+            console.error("Failed to delete notification:", error);
+            // Optionally revert the optimistic update on failure
+        }
+    };
+
+    const unreadCount = notifications.filter(n => !n.read).length;
 
     const handleIsMobileMenuOpen = () => {
         setIsMobileMenuOpen(!isMobileMenuOpen);
     }
 
     const handleLogout = () => {
-        localStorage.removeItem('token');
-        setLoggedIn(false);
+        logout();
         navigate('/login');
     }
     
@@ -48,42 +110,12 @@ const Navbar: React.FC<NavbarProps> = ({ loggedIn, setLoggedIn }) => {
                             </div>
                             <span>СЪОБЩЕНИЯ</span>
                         </a>
-                        <NotificationsDropdown label="ИЗВЕСТИЯ" icon={<FaBell/>}>
-                            <div className='flex text-left p-2 text-md font-semibold'>
-                                <h1>Имате <span className='text-blue-800'>3 нови</span> известия: </h1>
-                            </div>
-                            <div className='bg-white'>
-                                <li className='flex items-center py-2 border m-2 bg-gray-100 border-gray-300 hover:bg-gray-200 cursor-pointer space-x-2'>
-                                    <span className='inline-flex items-center justify-center bg-blue-800 rounded-full w-8 h-8 mx-2'>
-                                        <IoIosPaper className="text-white w-5 h-5"/>
-                                    </span>
-                                    <div>
-                                        <h2>Неуспешен превод</h2>
-                                        <p>Превод с получател НОИ не беше изпълнен...</p> 
-                                    </div>
-                                </li>
-                                <li className='flex items-center py-2 border m-2 bg-gray-100 border-gray-300 hover:bg-gray-200 cursor-pointer space-x-2'>
-                                    <span className='inline-flex items-center justify-center bg-blue-800 rounded-full w-8 h-8 mx-2'>
-                                        <FaCreditCard className="text-white w-5 h-5"/>
-                                    </span>
-                                    <div>
-                                        <h2>Нова картова авторизация</h2>
-                                        <p>От карта 401820***2251 бяха изтеглени 100 лв.</p> 
-                                    </div>
-                                </li>
-                                <li className='flex items-center py-2 border m-2 bg-gray-100 border-gray-300 hover:bg-gray-200 cursor-pointer space-x-2'>
-                                    <span className='inline-flex items-center justify-center bg-gray-500 rounded-full w-8 h-8 mx-2'>
-                                        <IoTicket className="text-white w-5 h-5"/>
-                                    </span>
-                                    <div>
-                                        <h2>Успешно активирано Token устройство</h2>
-                                        <p>Вече можете да ползвате Token устройството си за...</p> 
-                                    </div>
-                                </li>
-                            </div>
-                            <a href='#' className='flex text-left p-1 m-2 text-md text-blue-800'>
-                                Вижте всички известия &gt;
-                            </a>
+                        <NotificationsDropdown label="ИЗВЕСТИЯ" icon={<FaBell/>} unreadCount={unreadCount}>
+                            <NotificationsList 
+                                notifications={notifications}
+                                onMarkAsRead={handleMarkAsRead}
+                                onDelete={handleDelete}
+                            />
                         </NotificationsDropdown>
                         
                         <DropdownItem label="НАСТРОЙКИ" icon={<FaCog />}>
@@ -308,7 +340,7 @@ const Navbar: React.FC<NavbarProps> = ({ loggedIn, setLoggedIn }) => {
             </div>
 
             <div className='hidden md:flex justify-end items-center flex-1'>
-                {loggedIn ? <LoggedInNavLinks isMobile={false} /> : <LoggedOutNavLinks isMobile={false}/>}
+                {user ? <LoggedInNavLinks isMobile={false} /> : <LoggedOutNavLinks isMobile={false}/>}
             </div>
 
             <div className='md:hidden flex items-center'>
@@ -320,11 +352,11 @@ const Navbar: React.FC<NavbarProps> = ({ loggedIn, setLoggedIn }) => {
 
             {isMobileMenuOpen && (
                 <div className='md:hidden bg-white text-lg px-6 py-4 shadow-lg space-y-4 flex flex-col items-center text-center'>
-                    {loggedIn ? <LoggedInNavLinks isMobile={true}/> : <LoggedOutNavLinks isMobile={true}/>}
+                    {user ? <LoggedInNavLinks isMobile={true}/> : <LoggedOutNavLinks isMobile={true}/>}
                 </div>
             )}
         </>
     )
 }
 
-export default Navbar
+export default Navbar;

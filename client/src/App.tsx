@@ -1,37 +1,27 @@
 import './App.css'
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-import Register from './pages/Register';
-import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
-import { useState } from 'react';
-
+import Login from './pages/Login';
+import Register from './pages/Register';
+import PrivateRoute from './components/PrivateRoute';
+import AuthRedirect from './components/AuthRedirect';
 
 function App() {
-  const [loggedIn, setLoggedIn] = useState(() => !!localStorage.getItem('token'));
-
-  const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
-    const token = localStorage.getItem('token');
-    return token ? children : <Navigate to="/login" />;
-  };
-
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <Navbar loggedIn={loggedIn} setLoggedIn={setLoggedIn}/>
+    <div className='font-sans'>
+      <Navbar />
       <Routes>
-        <Route path='/' element={<Navigate to='/login' replace/>}/>
-        <Route path='/register' element={<Register/>}/>
-        <Route path='/login' element={<Login setLoggedIn={setLoggedIn}/>}/>
-        <Route path='/dashboard' element={
-          <PrivateRoute>
-            <Dashboard/>
-          </PrivateRoute>
-        }/>
+        <Route path='/' element={<AuthRedirect />} /> 
+        <Route path='/login' element={<Login />} />
+        <Route path='/register' element={<Register />} />
+        
+        <Route element={<PrivateRoute />}>
+          <Route path='/dashboard' element={<Dashboard />} />
+        </Route>
       </Routes>
-      <Footer/>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
