@@ -2,12 +2,6 @@ import { Request, Response } from 'express';
 import Transaction from '../models/Transaction';
 import Account from '../models/Account';
 
-/**
- * @desc    Create a new transaction and update account balance
- * @route   POST /api/transactions
- * @note    This version does NOT use a database transaction and is NOT atomic.
- *          It's a workaround for development environments without a MongoDB replica set.
- */
 export const createTransaction = async (req: Request, res: Response): Promise<void> => {
   const { account, type, amount } = req.body;
 
