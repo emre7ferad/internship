@@ -12,12 +12,22 @@ interface SidebarItemProps {
 const SidebarItem: FC<SidebarItemProps> = ({ icon: Icon, label, children }) => {
   const [hovered, setHovered] = useState(false);
   const [clickOpen, setClickOpen] = useState(false);
+  const [isLargeScreen, setIsLargeScreen] = useState<boolean>(typeof window !== 'undefined' ? window.innerWidth >= 1024 : true);
   const itemRef = useRef<HTMLLIElement>(null);
 
   const isOpen = clickOpen || hovered;
 
   useEffect(() => {
-    if (!clickOpen) return;
+    const handleSize = () => {
+      setIsLargeScreen(window.innerWidth >= 1024);
+    };
+
+    window.addEventListener('resize', handleSize)
+    return () => window.removeEventListener('resize', handleSize);
+  }, []);
+
+  useEffect(() => {
+    if (!clickOpen || isLargeScreen) return;
 
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -31,20 +41,28 @@ const SidebarItem: FC<SidebarItemProps> = ({ icon: Icon, label, children }) => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     }; 
-  }, [clickOpen]);
+  }, [clickOpen, isLargeScreen]);
 
   return (
     <li
     ref={itemRef}
       className="relative"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      onMouseEnter={() => {
+        if (isLargeScreen) setHovered(true);
+      }}
+      onMouseLeave={() => {
+        if (isLargeScreen) setHovered(false)
+      }}
       
     >
       <div 
       className="custom-li-hover flex items-center justify-between w-full px-2 py-2 text-left cursor-pointer"
-      onClick={() => setClickOpen((prev) => !prev)}>
-        <span className="flex items-center">
+      onClick={() => {
+        if (!isLargeScreen && children) {
+          setClickOpen((prev) => !prev)
+        }
+      }}>
+        <span className="flex ml-5 lg:ml-0 items-center justify-center lg:justify-start w-full">
           <Icon className="inline-block mr-2" />
           {label}
         </span>
@@ -52,7 +70,7 @@ const SidebarItem: FC<SidebarItemProps> = ({ icon: Icon, label, children }) => {
       </div>
 
       {isOpen && children && (
-        <ul className="absolute left-full top-0 w-full bg-white shadow-lg border border-gray-200 z-10">
+        <ul className="bg-white z-10 border border-gray-200 lg:absolute lg:left-full lg:top-0 w-full">
           {children}
         </ul>
       )}

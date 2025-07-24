@@ -15,6 +15,9 @@ import { useState, useEffect } from 'react';
 import NotificationsDropdown from './NotificationsDropdown';
 import NotificationsList from './NotificationsList';
 import { useAuth } from '../context/AuthContext';
+import axios from 'axios';
+import { IoMdChatboxes } from 'react-icons/io';
+import { useTranslation } from 'react-i18next';
 
 interface Notification {
   _id: string;
@@ -32,6 +35,8 @@ const Navbar: React.FC = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const { user, token, logout } = useAuth();
     const [notifications, setNotifications] = useState<Notification[]>([]);
+    const { t, i18n } = useTranslation('navbar');
+    const currentLanguage = i18n.language
 
     useEffect(() => {
         if (!user || !token) {
@@ -41,13 +46,11 @@ const Navbar: React.FC = () => {
 
         const fetchNotifications = async () => {
             try {
-                const response = await fetch(`http://localhost:5000/notifications/${user.userId}`, {
+                const response = axios.get(`http://localhost:5000/notifications/${user.userId}`, {
                     headers: { 'Authorization': `Bearer ${token}` },
                 });
-                if (response.ok) {
-                    const data = await response.json();
-                    setNotifications(data);
-                }
+                const { data } = await response;
+                setNotifications(data);
             } catch (error) {
                 console.error("Failed to fetch notifications:", error);
             }
@@ -59,31 +62,24 @@ const Navbar: React.FC = () => {
     }, [user, token]);
 
     const handleMarkAsRead = async (notificationId: string) => {
-        // Optimistically update the UI for a better user experience
         setNotifications(prev => prev.map(n => n._id === notificationId ? { ...n, read: true } : n));
         try {
-            await fetch(`http://localhost:5000/notifications/${notificationId}/read`, {
-                method: 'PATCH',
+            axios.patch(`http://localhost:5000/notifications/${notificationId}/read`, {
                 headers: { 'Authorization': `Bearer ${token}` },
             });
         } catch (error) {
-            // If the API call fails, revert the change (optional)
             console.error("Failed to mark as read:", error);
-            // You could add logic here to revert the optimistic update if needed
         }
     };
 
     const handleDelete = async (notificationId: string) => {
-        // Optimistically update the UI
         setNotifications(prev => prev.filter(n => n._id !== notificationId));
         try {
-            await fetch(`http://localhost:5000/notifications/${notificationId}`, {
-                method: 'DELETE',
+            axios.delete(`http://localhost:5000/notifications/${notificationId}`, {
                 headers: { 'Authorization': `Bearer ${token}` },
             });
         } catch (error) {
             console.error("Failed to delete notification:", error);
-            // Optionally revert the optimistic update on failure
         }
     };
 
@@ -101,16 +97,21 @@ const Navbar: React.FC = () => {
     const LoggedInNavLinks = ({ isMobile }: { isMobile : boolean}) => {
         return (
                 <div className={`text-gray-500 ${isMobile ? 'flex flex-col space-y-4 text-md' : 'flex justify-end items-center space-x-6 text-sm'}`}>
-                    <div className={`${isMobile ? 'flex flex-col space-y-4' : 'flex items-center space-x-6'}`}>
-                        <button>ENGLISH</button>
+                    <div className={`${isMobile ? 'flex flex-col items-center space-y-4' : 'flex items-center space-x-7 pr-3'}`}>
+                        <button 
+                        onClick={() => i18n.changeLanguage(currentLanguage === 'bg' ? 'en' : 'bg')}
+                        className='hover:text-blue-800 cursor-pointer'
+                        >
+                            {currentLanguage === 'bg' ? 'ENGLISH' : 'БЪЛГАРСКИ'}
+                        </button>
                         <a href='#' className='relative flex items-center space-x-1 cursor-pointer hover:text-blue-800'>
                             <div className='relative'>
                                 <FaEnvelope className='text-lg'/>
                                 <span className='absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1'>2</span>
                             </div>
-                            <span>СЪОБЩЕНИЯ</span>
+                            <span>{t('messages')}</span>
                         </a>
-                        <NotificationsDropdown label="ИЗВЕСТИЯ" icon={<FaBell/>} unreadCount={unreadCount}>
+                        <NotificationsDropdown label={t('notifications')} icon={<FaBell/>} unreadCount={unreadCount}>
                             <NotificationsList 
                                 notifications={notifications}
                                 onMarkAsRead={handleMarkAsRead}
@@ -118,12 +119,12 @@ const Navbar: React.FC = () => {
                             />
                         </NotificationsDropdown>
                         
-                        <DropdownItem label="НАСТРОЙКИ" icon={<FaCog />}>
+                        <DropdownItem label={t('settings')} icon={<FaCog />}>
                             <li className="flex items-center px-4 py-2 hover:bg-gray-100 hover:text-blue-800 cursor-pointer space-x-2">
                                 <a href="#">
                                     <span className='flex items-center justify-center'>
                                         <FaUser className='flex mr-2'/>
-                                        Лични данни
+                                        {t('personalData')}
                                     </span>
                                 </a>
                             </li>
@@ -131,7 +132,7 @@ const Navbar: React.FC = () => {
                                 <a href="#">
                                     <span className='flex items-center justify-center'>
                                         <MdEdit className='flex mr-2'/>
-                                        Общи настройки
+                                        {t('generalSettings')}
                                     </span>
                                 </a>
                             </li>
@@ -139,7 +140,7 @@ const Navbar: React.FC = () => {
                                 <a href="#">
                                     <span className='flex items-center justify-center'>
                                         <MdEditDocument className='flex mr-2'/>
-                                        Настройки на сметка
+                                        {t('accountSettings')}
                                     </span>
                                 </a>
                             </li>
@@ -147,7 +148,7 @@ const Navbar: React.FC = () => {
                                 <a href="#">
                                     <span className='flex items-center justify-center'>
                                         <RiSafe3Fill className='flex mr-2'/>
-                                        Настройки на депозит
+                                        {t('depositSettings')}
                                     </span>
                                 </a>
                             </li>
@@ -155,7 +156,7 @@ const Navbar: React.FC = () => {
                                 <a href="#">
                                     <span className='flex items-center justify-center'>
                                         <PiCreditCardFill className='flex mr-2'/>
-                                        Настройки на карта
+                                        {t('cardSettings')}
                                     </span>
                                 </a>
                             </li>
@@ -163,7 +164,7 @@ const Navbar: React.FC = () => {
                                 <a href="#">
                                     <span className='flex items-center justify-center'>
                                         <TbBadge3DFilled className='flex mr-2'/>
-                                        3D сигурност на карти
+                                        {t('3dSecurity')}
                                     </span>
                                 </a>
                             </li>
@@ -171,7 +172,7 @@ const Navbar: React.FC = () => {
                                 <a href="#">
                                     <span className='flex items-center justify-center'>
                                         <FaLock className='flex mr-2'/>
-                                        Промяна на парола
+                                        {t('changePassword')}
                                     </span>
                                 </a>
                             </li>
@@ -179,7 +180,7 @@ const Navbar: React.FC = () => {
                                 <a href="#">
                                     <span className='flex items-center justify-center'>
                                         <HiCreditCard className='flex mr-2'/>
-                                        Регистриране на сертификат
+                                        {t('registerCertificate')}
                                     </span>
                                 </a>
                             </li>
@@ -187,7 +188,7 @@ const Navbar: React.FC = () => {
                                 <a href="#">
                                     <span className='flex items-center justify-center'>
                                         <FaPenNib className='flex mr-2'/>
-                                        Регистриране на КЕБ
+                                        {t('registerKeb')}
                                     </span>
                                 </a>
                             </li>
@@ -195,7 +196,7 @@ const Navbar: React.FC = () => {
                                 <a href="#">
                                     <span className='flex items-center justify-center'>
                                         <FaUnlock className='flex mr-2'/>
-                                        Деблокиране на Token
+                                        {t('unblockToken')}
                                     </span>
                                 </a>
                             </li>
@@ -203,7 +204,7 @@ const Navbar: React.FC = () => {
                                 <a href="#">
                                     <span className='flex items-center justify-center'>
                                         <TbKeyFilled className='flex mr-2'/>
-                                        Промяна ПИН Token
+                                        {t('changePinToken')}
                                     </span>
                                 </a>
                             </li>
@@ -211,7 +212,7 @@ const Navbar: React.FC = () => {
                                 <a href="#">
                                     <span className='flex items-center justify-center'>
                                         <FaBell className='flex mr-2'/>
-                                        E-mail и SMS известие
+                                        {t('emailAndSms')}
                                     </span>
                                 </a>
                             </li>
@@ -219,27 +220,22 @@ const Navbar: React.FC = () => {
                                 <a href="#">
                                     <span className='flex items-center justify-center'>
                                         <FiBell className='flex mr-2'/>
-                                        SMS известие за карти
+                                        {t('smsAlert')}
                                     </span>
                                 </a>
                             </li>
                             <li className="flex items-center px-4 py-2 hover:bg-gray-100 hover:text-blue-800 cursor-pointer space-x-2">
-                                <a href="#">
-                                    <span className='flex items-center justify-center'>
-                                        <IoPhonePortrait className='flex mr-2'/>
-                                        Мобилно приложение Fibank
-                                    </span>
-                                </a>
+                                <MobileAppPopover/>
                             </li>
                         </DropdownItem>
-                        <a href='#'>
+                        <a href='#' className='md:border-x md:border-gray-300 px-3'>
                             <img src="/profile.jpg" alt="Profile" className='h-8 w-8 rounded-full border border-gray-300 hover:cursor-pointer' />
                         </a>
                         <button
                             onClick={handleLogout} 
                             className='flex items-center space-x-1 cursor-pointer hover:text-red-600'>
                                 <FaPowerOff/>
-                                <span>ИЗХОД</span>
+                                <span>{t('logout')}</span>
                         </button>
                     </div>
                 </div>
@@ -249,24 +245,29 @@ const Navbar: React.FC = () => {
     const LoggedOutNavLinks = ({ isMobile }: {isMobile: boolean}) => {
         return(
             <>
-                <div className={`flex-grow text-gray-500 ${isMobile ? 'flex flex-col space-y-4 items-start text-md' : 'flex justify-center items-center space-x-6 text-sm'}`}>
-                    <button>ENGLISH</button>
+                <div className={`flex-grow text-gray-500 ${isMobile ? 'flex flex-col space-y-4 items-center text-md' : 'flex justify-center items-center space-x-6 text-sm'}`}>
+                    <button 
+                    onClick={() => i18n.changeLanguage(currentLanguage === 'bg' ? 'en' : 'bg')}
+                    className='hover:text-blue-800 cursor-pointer'
+                    >
+                        {currentLanguage === 'bg' ? 'ENGLISH' : 'БЪЛГАРСКИ'}
+                    </button>
                     <a href="#" className='flex items-center space-x-1 hover:text-blue-800'>
                         <FaDesktop/>
-                        Към Сайта
+                        {t('toWebsite')}
                     </a>
                     <MobileAppPopover />
                     <a href="#" className='flex items-center space-x-1 hover:text-blue-800'>
                         <FaClipboardList/>
-                        <span>Промени в ОУ трафика</span>
+                        {t('OUChanges')}
                     </a>
-                    <DropdownItem icon={<BsInfoLg/>} label="Помощ">
-                        <h2 className='font-semibold px-4 py-2'>ИНФОРМАЦИЯ</h2>
+                    <DropdownItem icon={<BsInfoLg/>} label={t('help')}>
+                        <h2 className='font-semibold px-4 py-2'>{t('information')}</h2>
                         <li className="flex items-center px-4 py-2 hover:bg-gray-100 hover:text-blue-800 cursor-pointer space-x-2">
                             <a href="#">
                                 <span className='flex items-center justify-center'>
                                     <IoDocumentText className='flex mr-2'/>
-                                    Помощни статии
+                                    {t('helpArticles')}
                                 </span>
                             </a>
                         </li>
@@ -274,7 +275,7 @@ const Navbar: React.FC = () => {
                             <a href="#">
                                 <span className='flex items-center justify-center'>
                                     <MdOutlineQuestionMark className='flex mr-2'/>
-                                    Често задавани въпроси
+                                    {t('frequentlyAskedQuestions')}
                                 </span>
                             </a>
                         </li>
@@ -282,7 +283,7 @@ const Navbar: React.FC = () => {
                             <a href="#">
                                 <span className='flex items-center justify-center'>
                                     <GoRepoLocked className='flex mr-2'/>
-                                    Съвети за сигурност
+                                    {t('securityTips')}
                                 </span>
                             </a>
                         </li>
@@ -304,8 +305,8 @@ const Navbar: React.FC = () => {
                         <li className="flex items-center px-4 py-2 hover:bg-gray-100 hover:text-blue-800 cursor-pointer space-x-2">
                             <a href="#">
                                 <span className='flex items-center justify-center'>
-                                    <GoRepoLocked className='flex mr-2'/>
-                                    Съвети за сигурност
+                                    <IoMdChatboxes className='flex mr-2'/>
+                                    {t('onlineChat')}
                                 </span>
                             </a>
                         </li>
@@ -316,13 +317,13 @@ const Navbar: React.FC = () => {
                     {!isLoginPage && (
                         <Link to="/login" 
                         className='bg-blue-800 text-white font-bold px-8 py-2 hover:bg-blue-600 transition'>
-                            ВХОД
+                            {t('login')}
                         </Link>
                     )}
                     {!isRegisterPage && (
                         <Link to="/register"
                         className='bg-gray-200 text-black font-bold px-8 py-2 hover:bg-blue-800 hover:text-white transition'>
-                            РЕГИСТРАЦИЯ
+                            {t('register')}
                         </Link>
                     )}
                 </div>
@@ -332,18 +333,18 @@ const Navbar: React.FC = () => {
 
     return (
         <>
-        <header className='w-full bg-white px-6 py-4 flex justify-between items-center'>
+        <header className='w-full bg-white px-6 py-2 flex justify-between items-center'>
             <div className='flex items-center space-x-4'>
                 <Link to=''>
                     <img src="/logo.png" alt="Fibank Logo" className='h-10'/>
                 </Link>
             </div>
 
-            <div className='hidden md:flex justify-end items-center flex-1'>
+            <div className='hidden lg:flex justify-end items-center flex-1'>
                 {user ? <LoggedInNavLinks isMobile={false} /> : <LoggedOutNavLinks isMobile={false}/>}
             </div>
 
-            <div className='md:hidden flex items-center'>
+            <div className='lg:hidden flex items-center'>
                 <button onClick={handleIsMobileMenuOpen}>
                     {isMobileMenuOpen ? ( <FaTimes size={24} />) : <FaBars size={24} />}
                 </button>
@@ -351,7 +352,7 @@ const Navbar: React.FC = () => {
         </header>
 
             {isMobileMenuOpen && (
-                <div className='md:hidden bg-white text-lg px-6 py-4 shadow-lg space-y-4 flex flex-col items-center text-center'>
+                <div className='lg:hidden bg-white text-lg px-6 py-4 shadow-lg space-y-4 flex flex-col items-center text-center'>
                     {user ? <LoggedInNavLinks isMobile={true}/> : <LoggedOutNavLinks isMobile={true}/>}
                 </div>
             )}

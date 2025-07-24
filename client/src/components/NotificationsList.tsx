@@ -2,7 +2,7 @@ import { IoIosPaper } from "react-icons/io";
 import { FaCheck, FaTrash } from "react-icons/fa";
 
 interface NotificationsListProps {
-  notifications: any[]; // Using 'any' to avoid defining the Notification interface twice
+  notifications: any[];
   onMarkAsRead: (id: string) => void;
   onDelete: (id: string) => void;
 }

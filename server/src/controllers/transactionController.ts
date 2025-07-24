@@ -2,33 +2,55 @@ import { Request, Response } from 'express';
 import Transaction from '../models/Transaction';
 import Account from '../models/Account';
 
-/**
- * @desc    Create a new transaction and update account balance
- * @route   POST /api/transactions
- * @note    This version does NOT use a database transaction and is NOT atomic.
- *          It's a workaround for development environments without a MongoDB replica set.
- */
 export const createTransaction = async (req: Request, res: Response): Promise<void> => {
-  const { account, type, amount } = req.body;
-
   try {
+    const { account, type, amount, currency, description } = req.body;
     const updateAmount = type === 'deposit' ? Number(amount) : -Number(amount);
-    const updatedAccount = await Account.findByIdAndUpdate(
-      account,
-      { $inc: { balance: updateAmount } },
-      { new: true }
-    );
 
-    if (!updatedAccount) {
-      res.status(404).json({ error: 'Account not found' });
+    const accountDoc = await Account.findById(account);
+    if (!accountDoc) {
+      res.status(404).json({ error: "Account not found "});
       return;
     }
 
-    const transaction = new Transaction({ ...req.body });
+    if (type !== 'deposit' && accountDoc.availableBalance < Math.abs(updateAmount)) {
+      res.status(400).json({ error: "Insufficient available balance" });
+      return;
+    }
+
+    if (accountDoc.currency !== req.body.currency) {
+      res.status(400).json({ error: "Currency mismatch with account" });
+      return;
+    }
+
+    accountDoc.balance += updateAmount;
+    accountDoc.availableBalance += updateAmount;
+    await accountDoc.save();
+
+    const transaction = new Transaction({
+      account,
+      type,
+      amount,
+      currency,
+      description
+    });
     await transaction.save();
 
-    res.status(201).json(transaction);
+    res.status(201).json(transaction)
 
+  } catch (error) {
+    res.status(500).json({ error: (error as Error).message });
+  }
+};
+
+
+export const getTransactionsByAccount = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { accountId } = req.params;
+    const transactions = await Transaction.find({ account: accountId })
+      .sort({ date: -1 })
+      .populate('account', 'accountNumber');
+    res.status(200).json(transactions);
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
   }

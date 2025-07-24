@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import axios from 'axios';
+import Footer from "../components/Footer";
 
 const Register = () => {
 
@@ -215,7 +216,8 @@ const handleFullNameCyrillicChange = (e: React.ChangeEvent<HTMLInputElement>) =>
 
 
   return (
-    <div className="flex justify-center items-center min-h-screen mt-10">
+    <>
+    <div className="flex justify-center items-center min-h-screen my-10">
       <form noValidate onSubmit={handleSubmit} className="border-gray-200 border-1 w-full max-w-xl bg-white p-8 rounded-lg">
         <h2 className="text-2xl font-bold mb-4 text-gray-800">Регистрация на нов потребител</h2>
         <p className="text-sm text-gray-600 mb-6">
@@ -377,6 +379,8 @@ const handleFullNameCyrillicChange = (e: React.ChangeEvent<HTMLInputElement>) =>
         </button>
       </form>
     </div>
+    <Footer />
+    </>
   )
 }
 

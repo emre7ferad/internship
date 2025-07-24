@@ -4,12 +4,15 @@ import Transaction from "../models/Transaction";
 
 export const createAccount = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { user, accountNumber, accountType, balance, currency, status} = req.body;
+        const { user, accountNumber, accountType, balance, startingBalance, availableBalance, feesOwed, currency, status} = req.body;
         const account = new Account ({
             user,
             accountNumber,
             accountType,
             balance,
+            startingBalance,
+            availableBalance,
+            feesOwed,
             currency,
             status
         });
@@ -50,6 +53,7 @@ export const getAccountSummary = async (req: Request, res: Response): Promise<vo
 
         if (!account) {
             res.status(404).json({ error: 'Account not found' });
+            return;
         }
         res.status(200).json({ account, transactions});
     } catch (error) {

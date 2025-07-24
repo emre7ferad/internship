@@ -6,6 +6,8 @@ import ContactsFooter from "../components/ContactsFooter";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
+import Footer from "../components/Footer";
+import { useTranslation } from "react-i18next";
 
 const Login: React.FC = () => {
     const [errors, setErrors] = useState<{ [key: string]: string }>({})
@@ -13,14 +15,15 @@ const Login: React.FC = () => {
     const [password, setPassword] = useState('')
     const [generalError, setGeneralError] = useState('')
     const auth = useAuth();
+    const { t } = useTranslation('login')
     const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
 
         const newErrors = {
-            username: !username.trim() ? "Моля, въведете потребител!" : errors.username || "",
-            password: !password.trim() ? "Моля, въведете парола!" : errors.password || "",  
+            username: !username.trim() ? `${t('errorUsername')}` : errors.username || "",
+            password: !password.trim() ? `${t('errorPassword')}` : errors.password || "",  
         }
 
         setErrors(newErrors)
@@ -40,10 +43,10 @@ const Login: React.FC = () => {
                 // Show backend error message if present, otherwise show default
                 setErrors((prev) => ({
                     ...prev,
-                    general: err.response.data?.error || "Невалиден потребител или парола"
+                    general: err.response.data?.error || `${t('invalidInput')}`
                 }));
             } else {
-                setGeneralError('Сървърна грешка. Опитайте по-късно.');
+                setGeneralError(`${t('serverError')}`);
             }
         }
 
@@ -72,16 +75,16 @@ const Login: React.FC = () => {
     }
 
     return (
-        <div>
-            <div className="flex flex-col md:flex-row justify-center  mt-6 md:mt-10 px-2 md:px-0">
+        <div className="text-center items-center justify-center md:text-left">
+            <div className="flex flex-col lg:flex-row items-center justify-center mt-6 md:mt-10">
                 {/*Left side*/}
                 <div className="w-full max-w-md md:mx-20 mb-6 md-mb-0">
                     {/*Login form section*/}
                     <div className="border border-gray-300 p-4 md:p-6 rounded-lg">
                         <form noValidate onSubmit={handleSubmit}>
-                            <h1 className="text-xl mb-4">Виртуален банков клон (e-Fibank)</h1>
+                            <h1 className="text-xl mb-4">{t('loginFormHeading')}</h1>
                             <Input
-                                label="Потребител:"
+                                label={t('username')}
                                 name="username"
                                 type="text"
                                 required
@@ -91,7 +94,7 @@ const Login: React.FC = () => {
                                 icon={FaUser}
                             />
                             <Input
-                                label="Парола:"
+                                label={t('password')}
                                 name="password"
                                 type="password"
                                 required
@@ -115,15 +118,17 @@ const Login: React.FC = () => {
                             <a href="#" className="text-sm text-gray-500 mt-0 mb-4 block hover:underline">Забравена парола?</a>
 
                             <button className="w-full cursor-pointer bg-blue-800 text-2xl text-white py-2 px-2 hover:bg-blue-600">
-                                ВХОД В  MY FIBANK
+                            {t('loginFibank')}
                             </button>
-                            <a href="$" className="w-full block text-center mt-3 cursor-pointer bg-red-500 text-2xl text-white py-2 px-2 hover:bg-red-700">ВХОД В E-FIBANK</a>
+                            <a href="$" className="w-full block text-center mt-3 cursor-pointer bg-red-500 text-2xl text-white py-2 px-2 hover:bg-red-700"
+                            >{t('loginEFibank')}
+                            </a>
                         </form>
                     </div>
 
                     {/*section 2*/}
                     <div className="mt-3 border border-gray-300 p-4 md:p-6 rounded-lg">
-                        <h2 className="text-center">Защитен вход със <a href="#" className="text-blue-800">SSL сертификат</a> от: </h2>
+                        <h2 className="text-center">{t('securedLogin')} <a href="https://www.thawte.com/tls-ssl/tls-ssl-certificates" className="text-blue-800">{t('sslCertificate')}</a> {t('from')} </h2>
                         <div className="justify-center my-2 flex items-center space-x-2">
                             <a href="#" className="inline-block">
                                 <img src="/thawte-logo.png" alt="Thawte" className="block w-36 h-8" />
@@ -133,43 +138,44 @@ const Login: React.FC = () => {
                         <div className="justify-center flex items-center space-x-2 bg-gray-100 w-full">
                             <a href="#" className="flex items-center space-x-2 hover:underline hover:text-blue-800">
                                 <PiFileLock/>
-                                Съвети за сигурност&gt;
+                                {t('securityTips')}&gt;
                             </a>
                             <span className='text-gray-300'>|</span>
                             <a href="#" className="flex items-center space-x-2 hover:underline hover:text-blue-800">
                                 <BiMessageError/>
-                                Съобщения за грешка&gt;
+                                {t('errorMessages')}&gt;
                             </a>
                         </div>
                     </div>
                 </div>
 
                 {/*Right side*/}
-                <div className="w-full max-w-md md:mx-20 md:pr-26">
+                <div className="w-full max-w-md md:mx-20 lg:pr-26">
                     <section className="font-sans">
                         <div className="my-2">    
-                            <h2 className="text-2xl mb-2">ВАЖНО!</h2>
-                            <p className="text-gray-600">ПИБ АД УВЕДОМЯВА КАРТОДЪРЖАТЕЛИТЕ си, че има информация за получени фалшиви съобщения по електронната поща, които...</p>
-                            <a href="#" className="mt-2 mb-4 block hover:underline hover:text-blue-800">Прочетете повече&gt;</a>
+                            <h2 className="text-2xl mb-2">{t('important')}</h2>
+                            <p className="text-gray-600">{t('rightTxt1')}</p>
+                            <a href="#" className="mt-2 mb-4 block hover:underline hover:text-blue-800">{t('readMore')}&gt;</a>
                             <hr className="text-gray-300"/>
                         </div>
 
                         <div className="my-2">
-                            <h2 className="text-2xl mb-2">Разгледайте системата</h2>
-                            <p className="text-gray-600">Разгледайте и усетете онлайн банкирането чрез интерактивната ни демо версия.</p>
-                            <a href="#" className="mt-2 mb-4 block text-blue-800 font-semibold hover:underline">ДЕМО ВЕРСИЯ&gt;</a>
+                            <h2 className="text-2xl mb-2">{t('checkSystem')}</h2>
+                            <p className="text-gray-600">{t('rightTxt2')}</p>
+                            <a href="#" className="mt-2 mb-4 block text-blue-800 font-semibold hover:underline">{t('demoVersion')}&gt;</a>
                             <hr className="text-gray-300 "/>
                         </div>
 
                         <div className="my-2">
-                            <h2 className="text-2xl mb-2">Банкиране с Token</h2>
-                            <p className="text-gray-600">Мобилност, удобство и сигурност в едно, с нашето Token устройство за генериране на еднократни пароли за вход.</p>
-                            <a href="#" className="mt-2 mb-4 block hover:underline hover:text-blue-800">Научете повече&gt;</a>
+                            <h2 className="text-2xl mb-2">{t('bankingWithToken')}</h2>
+                            <p className="text-gray-600">{t('rightTxt3')}</p>
+                            <a href="#" className="mt-2 mb-4 block hover:underline hover:text-blue-800">{t('learnMore')}&gt;</a>
                         </div>
                     </section>
                 </div>
             </div>
             <ContactsFooter />
+            <Footer/>
         </div>
     )
 }
