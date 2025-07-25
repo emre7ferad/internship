@@ -2,6 +2,7 @@ import React, { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import axios from 'axios';
 import Footer from "../components/Footer";
+import { useTranslation } from "react-i18next";
 
 const Register = () => {
 
@@ -20,27 +21,29 @@ const Register = () => {
   const [address, setAddress] = useState("")
   const [username, setUsername] = useState("")
 
+  const { t } = useTranslation('register')
+
   
 const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
   
   const newErrors = {
-    egn: !egn.trim() ? "Моля въведете ЕГН!" : "",
-    fullNameCyrillic: !fullNameCyrillic.trim() ? "Моля въведете име!" : "",
-    fullNameLatin: !fullNameLatin.trim() ? "Моля въведете име на латиница!" : "",
-    email: !email.trim() ? "Моля въведете E-Mail!" : "",
-    phone: !phone.trim() ? "Моля въведете телефон!" : "",
-    address: !address.trim() ? "Моля въведете адрес!" : "",
-    username: !username.trim() ? "Моля въведете потребителско име!" : "",
+    egn: !egn.trim() ? `${t('egnEnter')}` : "",
+    fullNameCyrillic: !fullNameCyrillic.trim() ? `${t('nameCyrillicEnter')}` : "",
+    fullNameLatin: !fullNameLatin.trim() ? `${t('nameLatinEnter')}` : "",
+    email: !email.trim() ? `${t('emailEnter')}` : "",
+    phone: !phone.trim() ? `${t('phoneEnter')}` : "",
+    address: !address.trim() ? `${t('addressEnter')}` : "",
+    username: !username.trim() ? `${t('usernameEnter')}` : "",
     password: !password.trim()
-      ? "Моля въведете парола!"
+      ? `${t('passwordEnter')}`
       : !isPasswordValid(password, strength)
-      ? "Паролата не отговаря на изискванията"
+      ? `${t('invalidPassword')}`
       : "",
       confirmPassword: !confirmPassword.trim()
-      ? "Моля повторете паролата!"
+      ? `${t('pleaseConfirmPassword')}`
       : confirmPassword !== password
-      ? "Паролите не съвпадат"
+      ? `${t('invalidPasswordConfirm')}`
       : ""
   };
   
@@ -73,11 +76,9 @@ const handleSubmit = async (e: React.FormEvent) => {
       navigate('/login');
     } else {
       console.error('Registration failed:', result.error);
-      alert(`Грешка при регистрация: ${result.error}`);
     }
   } catch (err) {
     console.error('Error submitting form:', err);
-    alert('Възникна грешка при изпращане на формата.');
   }
   };
   
@@ -86,9 +87,9 @@ const handleSubmit = async (e: React.FormEvent) => {
     const value = e.target.value
     setUsername(value)
     if (value.trim() === "") {
-      setErrors(prev => ({...prev, username: "Моля въведете потребителско име!"}))
+      setErrors(prev => ({...prev, username: `${t('usernameEnter')}`}))
     } else if (/[\u0400-\u04FF]/.test(value)){
-      setErrors(prev => ({...prev, username: "Символи на кирилица не са позволени!"}))
+      setErrors(prev => ({...prev, username: `${t('invalidUsername   n')}`}))
     } else {  
       setErrors(prev => ({...prev, username: ""}))
     }
@@ -98,7 +99,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     const value = e.target.value
     setAddress(value)
     if (value.trim() === "") {
-      setErrors(prev => ({...prev, address: "Моля въведете адрес!"}))
+      setErrors(prev => ({...prev, address: `${t('addressEnter')}`}))
     }
     else{
       setErrors(prev => ({...prev, address: ""}))
@@ -109,10 +110,10 @@ const handleSubmit = async (e: React.FormEvent) => {
     const value = e.target.value
     setPhone(value)
     if(value.trim() === ""){
-      setErrors(prev => ({...prev, phone: "Моля въведете телефон!"}))
+      setErrors(prev => ({...prev, phone: `${t('phoneEnter')}`}))
     }
     else if (!/^(?:\+359|0)\d{9}$/.test(value)){
-      setErrors(prev => ({...prev, phone: "Моля въведете правилен телефон!"}))
+      setErrors(prev => ({...prev, phone: `${t('invalidPhone')}`}))
     }
     else {
       setErrors(prev => ({...prev, phone: ""}))
@@ -123,10 +124,10 @@ const handleSubmit = async (e: React.FormEvent) => {
     const value = e.target.value
     setEmail(value)
     if (value.trim() === "") {
-      setErrors(prev => ({...prev, email: "Моля въведете E-mail!"}))
+      setErrors(prev => ({...prev, email: `${t('emailEnter')}`}))
     }
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)){
-      setErrors(prev => ({...prev, email: "Невалиден E-Mail!"}))
+      setErrors(prev => ({...prev, email: `${t('invalidEmail')}`}))
     } else {
       setErrors(prev => ({...prev, email: ""}))
     }
@@ -136,10 +137,10 @@ const handleSubmit = async (e: React.FormEvent) => {
     const value = e.target.value
     setFullNameLatin(value)
     if (value.trim() === "") {
-      setErrors(prev => ({...prev, fullNameLatin: "Моля въведете име на латиница!"}))
+      setErrors(prev => ({...prev, fullNameLatin: `${t('nameLatinEnter')}`}))
     }
     else if (!/^[A-Za-z\s]+$/.test(value)) {
-      setErrors(prev => ({...prev, fullNameLatin: "Вашето име съдържа символи на кирилица!"}))
+      setErrors(prev => ({...prev, fullNameLatin: `${t('invalidLatinName')}`}))
     } else {
       setErrors(prev => ({...prev, fullNameLatin: ""}))
     }
@@ -149,10 +150,10 @@ const handleFullNameCyrillicChange = (e: React.ChangeEvent<HTMLInputElement>) =>
   const value = e.target.value
   setFullNameCyrillic(value)
   if (value.trim() === "") {
-    setErrors(prev => ({...prev, fullNameCyrillic: "Моля въведете име!"}))
+    setErrors(prev => ({...prev, fullNameCyrillic: `${t('nameCyrillicEnter')}`}))
   }
   else if (!/^[\u0400-\u04FF\s]+$/.test(value)) {
-    setErrors(prev => ({...prev, fullNameCyrillic: "Вашето име съдържа символи на латиница!"}))
+    setErrors(prev => ({...prev, fullNameCyrillic: `${t('invalidCyrillicName')}`}))
   } else {
     setErrors(prev => ({...prev, fullNameCyrillic: ""}))
   }
@@ -162,10 +163,10 @@ const handleFullNameCyrillicChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     const value = e.target.value
     setEgn(value)
     if(value.trim() === "") {
-      setErrors(prev => ({...prev, egn: "Моля въведете ЕГН!"}))
+      setErrors(prev => ({...prev, egn: `${t('egnEnter')}`}))
     }
     if (!/^\d{10}$/.test(value)) {
-      setErrors(prev => ({...prev, egn: "Невалидно ЕГН!"}))
+      setErrors(prev => ({...prev, egn: `${t('invalidEgn')}`}))
     } else {
       setErrors(prev => ({...prev, egn: ""}))
     }
@@ -193,9 +194,9 @@ const handleFullNameCyrillicChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setStrength(newStrength)
 
     if (value.trim() === "") {
-      setErrors(prev => ({...prev, password: "Моля въведете парола!"}))
+      setErrors(prev => ({...prev, password: `${t('passwordEnter')}`}))
     } else if (!isPasswordValid(value, newStrength)) {
-      setErrors(prev => ({ ...prev, password: "Паролата не отговаря на изискванията" }))
+      setErrors(prev => ({ ...prev, password: `${t('invalidPassword')}` }))
     } else {
       setErrors(prev => ({...prev, password: ""}))
     }
@@ -206,9 +207,9 @@ const handleFullNameCyrillicChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setConfirmPassword(value)
 
     if (value.trim() === "") {
-      setErrors(prev => ({...prev, confirmPassword: "Моля повторете паролата!"}))
+      setErrors(prev => ({...prev, confirmPassword: `${t('pleaseConfirmPassword')}`}))
     } else if (value !== password) {
-      setErrors(prev => ({...prev, confirmPassword: "Паролата не съвпада!"}))
+      setErrors(prev => ({...prev, confirmPassword: `${t('invalidConfirmPassword')}`}))
     } else {
       setErrors(prev => ({...prev, confirmPassword: ""}))
     }
@@ -219,35 +220,30 @@ const handleFullNameCyrillicChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     <>
     <div className="flex justify-center items-center min-h-screen my-10">
       <form noValidate onSubmit={handleSubmit} className="border-gray-200 border-1 w-full max-w-xl bg-white p-8 rounded-lg">
-        <h2 className="text-2xl font-bold mb-4 text-gray-800">Регистрация на нов потребител</h2>
-        <p className="text-sm text-gray-600 mb-6">
-          Тази регистрационна форма се попълва, само ако нямате потребител и парола
-          за Виртуален банков клон (e-fibank) на ПИБ. Ако вече имате потребител и парола,
-          добавянето на достъп до ново физическо или юридическо лице става в банката.
-          Ако сте забравили своя потребител и/или парола, заповядайте в банката, за да ги получите.
-        </p>
+        <h2 className="text-2xl font-bold mb-4 text-gray-800">{t('header')}</h2>
+        <p className="text-sm text-gray-600 mb-6">{t('headerText')}</p>
 
         <hr className="border-t border-gray-300 my-6"/>
         <p 
             className="text-sm relative text-gray-500 mb-4 flex items-center">
                 <span className="absolute -left-3 text-red-500 mr-1">*</span>
-                Задължителни полета
+                {t('requiredFields')}
         </p>
         <Input 
-        label="ЕГН:"
+        label={t('egn')}
         name="egn" 
         value={egn}
         required
         onChange={handleEgnChange}
         error={errors.egn}/>
         <Input 
-            label="ЛНЧ или паспорт:" 
+            label={t('lnc')} 
             name="lnch" 
             tooltip={[
-                "Попълва се само от чуждестранни граждани."
+                `${t('lncTooltip')}`
             ]}/>
         <Input 
-        label="Име и фамилия на кирилица:" 
+        label={t('nameCyrillic')}
         name="fullNameCyrillic" 
         required
         value={fullNameCyrillic}
@@ -255,7 +251,7 @@ const handleFullNameCyrillicChange = (e: React.ChangeEvent<HTMLInputElement>) =>
         error={errors.fullNameCyrillic} />
 
         <Input 
-        label="Име и фамилия на латиница:" 
+        label={t('nameLatin')}
         name="fullNameLatin" 
         required 
         value={fullNameLatin}
@@ -273,7 +269,7 @@ const handleFullNameCyrillicChange = (e: React.ChangeEvent<HTMLInputElement>) =>
 
         <Input 
         type="tel" 
-        label="Телефон:" 
+        label={t('phone')} 
         name="phone" 
         required 
         value={phone}
@@ -281,7 +277,7 @@ const handleFullNameCyrillicChange = (e: React.ChangeEvent<HTMLInputElement>) =>
         error={errors.phone}/>
 
         <TextArea 
-        label="Адрес:" 
+        label={t('address')}
         name="address" 
         required 
         value={address}
@@ -289,7 +285,7 @@ const handleFullNameCyrillicChange = (e: React.ChangeEvent<HTMLInputElement>) =>
         error={errors.address}/>
 
         <Input 
-        label="Потребителско име:" 
+        label={t('username')} 
         name="username" 
         required 
         value={username}
@@ -298,15 +294,15 @@ const handleFullNameCyrillicChange = (e: React.ChangeEvent<HTMLInputElement>) =>
 
         <Input 
           type="password" 
-          label="Парола за вход:" 
+          label={t('password')} 
           name="password" 
           required
           tooltip={[
-            <b className="list-none">Изисквания за парола:</b>,
-              "Да е с дължина от 6 до 24 знака.",
-              "Да съдържа поне една буква.",
-              "Да съдържа поне една цифра.",
-              "Да е на латиница."
+            <b className="list-none">{t('passwordRequirements')}</b>,
+              `${t('passwordTooltip1')}`,
+              `${t('passwordTooltip2')}`,
+              `${t('passwordTooltip3')}`,
+              `${t('passwordTooltip4')}`
           ]} 
           value={password}
           onChange={handlePasswordChange}
@@ -335,27 +331,27 @@ const handleFullNameCyrillicChange = (e: React.ChangeEvent<HTMLInputElement>) =>
           </div>
           <span className="text-xs text-gray-600">
             {password.length === 0
-              ? "Сигурност на парола"
+              ? `${t('passwordSecurity0')}`
               : !/^[\x00-\x7F]*$/.test(password)
-              ? "Паролата съдържа невалидни символи"
+              ? `${t('passwordSecurityInvalid')}`
               : password.length > 24
-              ? "Паролата е твърде дълга"
+              ? `${t('passwordSecurityLength24')}`
               : password.length < 6
-              ? "Паролата е твърде къса"
+              ? `${t('passwordSecurityLength6')}`
               :strength === 1
-              ? "Паролата е твърде слаба"
+              ? `${t('passwordSecurity1')}`
               : strength === 2
-              ? "Паролата е средно сигурна"
+              ? `${t('passwordSecurity2')}`
               : strength === 3
-              ? "Паролата е с високо ниво на сигурност"
+              ? `${t('passwordSecurity3')}`
               : strength === 4
-              ? "Паролата е максимално сигурна"
-              : "Паролата е максимално сигурна"}
+              ? `${t('passwordSecurity4')}`
+              : `${t('passwordSecurity4')}`}
           </span>
         </div>
         <Input 
         type="password" 
-        label="Повторете паролата:" 
+        label={t('confirmPassword')} 
         name="confirmPassword" 
         required 
         value={confirmPassword}
@@ -366,16 +362,14 @@ const handleFullNameCyrillicChange = (e: React.ChangeEvent<HTMLInputElement>) =>
         <hr className="border-t border-gray-300 my-6"/>
 
         <p className="text-sm text-gray-600 my-4">
-          Необходимо е да запомните потребителското си име и парола, които току-що 
-          въведохте. След като потвърдите регистрацията в банката, те ще Ви служат за вход
-          във Виртуалeн банков клон (e-fibank).
+          {t('formFooterText')}
         </p>
 
         <button
           type="submit"
           className='w-full text-white py-2 px-4 cursor-pointer rounded transition duration-200 hover:bg-blue-600 bg-blue-800'
         >
-          ИЗПРАТЕТЕ ИСКАНЕ ЗА РЕГИСТРАЦИЯ
+          {t('registerBtn')}
         </button>
       </form>
     </div>

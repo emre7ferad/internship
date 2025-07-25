@@ -1,5 +1,6 @@
 import { IoIosPaper } from "react-icons/io";
 import { FaCheck, FaTrash } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 
 interface NotificationsListProps {
   notifications: any[];
@@ -10,6 +11,7 @@ interface NotificationsListProps {
 const NotificationsList: React.FC<NotificationsListProps> = ({ notifications, onMarkAsRead, onDelete }) => {
   const unreadCount = notifications.filter(n => !n.read).length;
   const latestNotifications = notifications.slice(0, 5);
+  const { t } = useTranslation('navbar') 
 
   const handleMouseDown = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -18,7 +20,7 @@ const NotificationsList: React.FC<NotificationsListProps> = ({ notifications, on
   return (
     <>
       <div className="flex text-left p-2 text-md font-semibold">
-        <h1>Имате <span className="text-blue-800">{unreadCount} нови</span> известия</h1>
+        <h1> {t('youHave')} <span className="text-blue-800">{unreadCount} {t('new')}</span> {t('newNotifications')}</h1>
       </div>
       <div className="bg-white">
         {latestNotifications.length > 0 ? (
@@ -59,10 +61,10 @@ const NotificationsList: React.FC<NotificationsListProps> = ({ notifications, on
             );
           })
         ) : (
-          <li className=" p-4 text-center">Нямате нови известия.</li>
+          <li className=" p-4 text-center">{t('noNewNotifications')}.</li>
         )}
       </div>
-      <a href="#" className="flex text-left p-1 m-2 text-md text-blue-800">Вижте всички известия &gt;</a>
+      <a href="#" className="flex text-left p-1 m-2 text-md text-blue-800">{t('seeAllNotifications')} &gt;</a>
     </>
   );
 };

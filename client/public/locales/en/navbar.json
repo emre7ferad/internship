@@ -28,5 +28,10 @@
     "messages": "MESSAGES",
     "mobileApp": "Mobile App",
     "learnMore": "LEARN MORE",
-    "mobileAppText": "Banking everywhere, anytime"
+    "mobileAppText": "Banking everywhere, anytime",
+    "youHave": "You have",
+    "new": "new",
+    "newNotifications": "notifications",
+    "noNewNotifications": "You don't have new notifications",
+    "seeAllNotifications": "See all notifications"
 } 

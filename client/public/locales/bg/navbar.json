@@ -28,5 +28,10 @@
         "messages": "СЪОБЩЕНИЯ",
         "mobileApp": "Мобилно приложение",
         "learnMore": "НАУЧЕТЕ ПОВЕЧЕ",
-        "mobileAppText": "Банкирайте навсякъде, по всяко време"
+        "mobileAppText": "Банкирайте навсякъде, по всяко време",
+        "youHave": "Имате",
+        "new": "нови",
+        "newNotifications": "известия",
+        "noNewNotifications": "Нямате нови известия",
+        "seeAllNotifications": "Вижте всички известия"
     }
