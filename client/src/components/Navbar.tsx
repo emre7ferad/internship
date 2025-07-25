@@ -8,7 +8,7 @@ import { PiCreditCardFill } from 'react-icons/pi';
 import { TbBadge3DFilled, TbKeyFilled } from 'react-icons/tb';
 import { HiCreditCard } from 'react-icons/hi';
 import { FiBell } from 'react-icons/fi';
-import { IoDocumentText, IoPhonePortrait } from 'react-icons/io5';
+import { IoDocumentText } from 'react-icons/io5';
 import { GoRepoLocked } from 'react-icons/go';
 import MobileAppPopover from './MobileAppPopover';
 import { useState, useEffect } from 'react';

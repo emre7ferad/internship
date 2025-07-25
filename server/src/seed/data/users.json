@@ -1,0 +1,13 @@
+[
+    {
+        "egn": "0123456789",
+        "nameCyrillic": "Админ Профил",
+        "nameLatin": "Admin Profile",
+        "email": "admin@example.com",
+        "phone": "+359897654321",
+        "address": "Plovdiv, Bulgaria",
+        "username": "admin",
+        "password": "Admin123",
+        "isAdmin": true
+    }
+]
