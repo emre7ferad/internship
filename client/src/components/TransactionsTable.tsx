@@ -2,6 +2,7 @@ import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { useEffect, useState } from "react";
 import { IoIosArrowDown, IoIosArrowUp, IoIosSettings } from "react-icons/io";
+import { useTranslation } from "react-i18next";
 
 interface Transaction {
     _id: string;
@@ -21,6 +22,7 @@ const TransactionsTable = () => {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
+    const { t } = useTranslation('dashboard')
 
     useEffect(() => {
         if (user?.userId) {
@@ -46,16 +48,16 @@ const TransactionsTable = () => {
         }
     }, [user]);
 
-    if (loading) return <p className="p-4">Зареждане на транзакции...</p>
+    if (loading) return <p className="p-4">{t('loadingTransactions')}</p>
 
     const getTransactionTypeLabel = (type: string) => {
         switch(type) {
             case 'deposit':
-                return 'Депозит';
+                return `${t('deposit')}`;
             case 'withdrawal':
-                return 'Теглене';
+                return `${t('withdrawal')}`;
             case 'transfer':
-                return 'Превод';
+                return `${t('transfer')}`;
             default:
                 return type;
         }
@@ -69,17 +71,17 @@ const TransactionsTable = () => {
     return (
         <section className="border my-5 border-gray-300 shadow-md">
             <div className="flex justify-between items-stretch border-b border-gray-300 bg-white">
-                <h2 className="text-lg pl-4 py-2 font-semibold flex items-center">ПОСЛЕДНИ 5 ПРЕВОДА</h2>
+                <h2 className="text-lg pl-4 py-2 font-semibold flex items-center uppercase">{t('lastFiveTransfers')}</h2>
                 <div className="flex items-stretch">
                     <a href="#" className="flex items-center justify-center border-l border-gray-300 hover:text-blue-800">
-                        Вижте всички &gt;
+                        {t('seeAll')} &gt;
                     </a>
                     <div className="relative group flex items-center hover:text-blue-800 cursor-pointer text-gray-700 justify-center border-l border-gray-300 w-12">
                         <button>
                             <IoIosSettings className="text-lg cursor-pointer" />
                         </button>
-                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block bg-white text-black font-semibold border border-gray-300 text-md px-2 py-1 whitespace-nowrap z-10">
-                            НАСТРОЙКИ
+                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block bg-white text-black font-semibold border border-gray-300 text-md px-2 py-1 whitespace-nowrap z-10 uppercase">
+                            {t('settings')}
                         </div>
                     </div>
                 </div>
@@ -89,12 +91,12 @@ const TransactionsTable = () => {
             <table className="w-full text-left">
                 <thead className="bg-gray-100">
                     <tr>
-                        <td className="py-2 pl-4 w-20 text-left">Тип</td>
-                        <th className="py-2 w-24">Дата</th>
-                        <td className="py-2">Документ и референция</td>
-                        <td className="py-2">Получател/наредител</td>
-                        <td className="py-2">Сметка</td>
-                        <td className="py-2 pr-4 text-right">Сума</td>
+                        <td className="py-2 pl-4 w-20 text-left">{t('type')}</td>
+                        <th className="py-2 w-24">{t('date')}</th>
+                        <td className="py-2">{t('documentAndReference')}</td>
+                        <td className="py-2">{t('receiverOrderer')}</td>
+                        <td className="py-2">{t('account')}</td>
+                        <td className="py-2 pr-4 text-right">{t('sum')}</td>
                     </tr>
                 </thead>
                 <tbody>
@@ -134,10 +136,10 @@ const TransactionsTable = () => {
                             )}
                             <span>{getTransactionTypeLabel(transaction.type)}</span>
                         </div>
-                        <div><span className="font-medium">Дата:</span> {formatDate(transaction.date)}</div>
-                        <div><span className="font-medium">Референция:</span> {transaction.description}</div>
-                        <div><span className="font-medium">Получател/Наредител:</span> -</div>
-                        <div><span className="font-medium">Сметка:</span> {transaction.account?.accountNumber}</div>
+                        <div><span className="font-medium">{t('date')}:</span> {formatDate(transaction.date)}</div>
+                        <div><span className="font-medium">{t('documentAndReference')}:</span> {transaction.description}</div>
+                        <div><span className="font-medium">{t('receiverOrderer')}:</span> -</div>
+                        <div><span className="font-medium">{t('account')}:</span> {transaction.account?.accountNumber}</div>
                         <div className={`font-medium ${transaction.type === 'deposit' ? 'text-green-600' : 'text-red-600'}`}>
                             <span>Сума: </span>
                             {transaction.type === 'withdrawal' ? '-' : '+'}

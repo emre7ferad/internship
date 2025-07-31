@@ -14,13 +14,14 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000
 const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/fibank';
+const URL = process.env.CLIENT_URL;
 
 mongoose.connect(uri)
   .then(() => console.log('MongoDB Connected'))
   .catch((err) => console.log('MongoDB connection error', err))
 
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: URL,
   credentials: true
 }))
 app.use(express.json())
@@ -36,5 +37,5 @@ app.get('/', (_req, res) => {
 })
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`)
+  console.log(`Server running on ${URL}:${PORT}`)
 })
