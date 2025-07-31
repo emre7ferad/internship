@@ -1,6 +1,9 @@
 import ContactsFooter from "../components/ContactsFooter";
 import Footer from "../components/Footer";
 import { useTranslation } from "react-i18next";
+import FormInput from "../components/UnblockTokenFormInput";
+import FormSection from "../components/UnblockTokenFormSection";
+
 const UnblockToken = () => {
     const { t } = useTranslation('unblockToken')
 
@@ -15,37 +18,45 @@ const UnblockToken = () => {
 
             {/*Form section*/}
             <form className="py-6 space-y-6 border-t border-gray-300">
-                {/*First input section*/}
-                <div className="px-6 max-w-3xl text-center md:text-left space-y-6 md:space-y-4">
-                    <div className="md:grid md:grid-cols-2 items-center">
-                        <label htmlFor="serialNumberToken" className="font-semibold md:text-left">{t('serialNumber')} TOKEN</label>
-                        <input type="text" className="border border-gray-300 p-1 w-full justify-self-end focus:outline-none"/>
-                    </div>
-                    <div className="md:grid md:grid-cols-2 items-center">
-                        <label htmlFor="username" className="font-semibold">{t('username')}</label>
-                        <input type="text" className="border border-gray-300 p-1 w-full justify-self-end focus:outline-none"/>
-                    </div>
-                    <div className="md:grid md:grid-cols-2 items-center">
-                        <label htmlFor="email" className="font-semibold">E-mail:</label>
-                        <input type="email" className="border border-gray-300 p-1 w-full justify-self-end focus:outline-none"/>
-                    </div>
-                </div>
+                <FormSection className="px-6 max-w-3xl text-center md:text-left space-y-6 md:space-y-4" >
+                    <FormInput 
+                        name="serialNumberToken"
+                        label="serialNumber TOKEN"
+                        type="text"
+                        translationKey="serialNumber"
+                    />
+                    <FormInput 
+                        name="username"
+                        label={t('username')}
+                        type="text"
+                    />
+                    <FormInput
+                        name="email"
+                        label="E-Mail"
+                        type="email"
+                    />
+                </FormSection>
 
-                {/*Second input section*/}
-                <div className="max-w-3xl border-t border-gray-300">
-                    <div className="md:flex text-center md:text-left items-center justify-between px-6 py-4">
-                        <p className="w-full">{t('firstCode')}</p>
-                        <input type="password" className="border border-gray-300 p-1 w-full md:w-92 focus:outline-none"/>
-                    </div>
-                    <div className="md:flex text-center md:text-left items-center justify-between px-6 py-4">
-                        <p className="w-full">{t('secondCode')}</p>
-                        <input type="password" className="border border-gray-300 p-1 w-full md:w-92 focus:outline-none"/>
-                    </div>
-                    <div className="md:flex text-center md:text-left items-center justify-between px-6 py-4">
-                        <p className="w-full">{t('thirdCode')}</p>
-                        <input type="password" className="border border-gray-300 p-1 w-full md:w-92 focus:outline-none"/>
-                    </div>
-                </div>
+                <FormSection hasBorderTop>
+                    <FormInput
+                        name="firstCode"
+                        label={t('firstCode')}
+                        type="password"
+                        layout="flex"
+                    />
+                    <FormInput
+                        name="secondCode"
+                        label={t('secondCode')}
+                        type="password"
+                        layout="flex"
+                    />
+                    <FormInput
+                        name="thirdCode"
+                        label={t('thirdCode')}
+                        type="password"
+                        layout="flex"
+                    />
+                </FormSection>
             </form>
 
             {/*Buttons section */}

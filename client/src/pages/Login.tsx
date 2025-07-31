@@ -4,10 +4,11 @@ import { PiFileLock } from "react-icons/pi";
 import { BiMessageError } from "react-icons/bi";
 import ContactsFooter from "../components/ContactsFooter";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import Footer from "../components/Footer";
 import { useTranslation } from "react-i18next";
+import { loginUser } from "../services/authService";
+import Input from "../components/LoginInput";
 
 const Login: React.FC = () => {
     const [errors, setErrors] = useState<{ [key: string]: string }>({})
@@ -24,23 +25,20 @@ const Login: React.FC = () => {
         const newErrors = {
             username: !username.trim() ? `${t('errorUsername')}` : errors.username || "",
             password: !password.trim() ? `${t('errorPassword')}` : errors.password || "",  
-        }
+        };
 
         setErrors(newErrors)
-        const hasErrors = Object.values(newErrors).some(error => error && error.length > 0)
+        const hasErrors = Object.values(newErrors).some(error => error && error.length > 0);
 
-        if (hasErrors) return
+        if (hasErrors) return;
 
         try {
-            const response = await axios.post('http://localhost:5000/api/auth/login', {username, password });
-
-            const data = response.data;
+            const data = await loginUser(username, password);
             
             auth.login(data.token);
             navigate ('/dashboard');
         } catch (err: any) {
             if (err.response && err.response.status === 401) {
-                // Show backend error message if present, otherwise show default
                 setErrors((prev) => ({
                     ...prev,
                     general: err.response.data?.error || `${t('invalidInput')}`
@@ -52,27 +50,43 @@ const Login: React.FC = () => {
 
     }
 
-    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value
-        setPassword(value)
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target as { name: "username" | "password"; value: string};
 
-        if (value.trim() === '') {
-            setErrors(prev => ({...prev, password: 'Моля, въведете парола!'}))
-        } else {
-            setErrors(prev => ({...prev, password: ''}))
-        }
+        name === 'username' ? setUsername(value) : setPassword(value);
+
+        setErrors(prev => ({ ...prev, 
+            [name]: value.trim() ? '' : 
+                name === 'username' ? `${t('errorUsername')}` : `${t('errorPassword')}`
+        }));
     }
 
-    const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value
-        setUsername(value)
-
-        if (value.trim() === '') {
-            setErrors(prev => ({...prev, username: 'Моля, въведете потребител!'}))
-        } else {
-            setErrors(prev => ({...prev, username: ''}))
-        }
+    interface InfoCardProps {
+        title: string;
+        description: string;
+        linkText: string;
+        linkHref?: string;
+        showDivider?: boolean;
+        linkStyle?: string;
     }
+
+    const InfoCard = ({ 
+        title, 
+        description, 
+        linkText, 
+        linkHref = "#", 
+        showDivider = true, 
+        linkStyle = "hover:underline hover:text-blue-800" 
+    }: InfoCardProps) => {
+        return (
+            <div className="my-2">
+                <h2 className="text-2xl mb-2">{title}</h2>
+                <p className="text-gray-600">{description}</p>
+                <a href={linkHref} className={`mt-2 mb-4 block ${linkStyle}`}>{linkText}&gt;</a>
+                {showDivider && <hr className="text-gray-300"/>}
+            </div>
+        );
+    };
 
     return (
         <div className="text-center items-center justify-center md:text-left">
@@ -89,7 +103,7 @@ const Login: React.FC = () => {
                                 type="text"
                                 required
                                 value={username}
-                                onChange={handleUsernameChange}
+                                onChange={handleChange}
                                 error={errors.username}
                                 icon={FaUser}
                             />
@@ -99,7 +113,7 @@ const Login: React.FC = () => {
                                 type="password"
                                 required
                                 value={password}
-                                onChange={handlePasswordChange}
+                                onChange={handleChange}
                                 error={errors.password}
                                 icon={FaLock}
                             />
@@ -152,67 +166,29 @@ const Login: React.FC = () => {
                 {/*Right side*/}
                 <div className="w-full max-w-md md:mx-20 lg:pr-26">
                     <section className="font-sans">
-                        <div className="my-2">    
-                            <h2 className="text-2xl mb-2">{t('important')}</h2>
-                            <p className="text-gray-600">{t('rightTxt1')}</p>
-                            <a href="#" className="mt-2 mb-4 block hover:underline hover:text-blue-800">{t('readMore')}&gt;</a>
-                            <hr className="text-gray-300"/>
-                        </div>
+                        <InfoCard 
+                        title={t('important')}
+                        description={t('rightTxt1')}
+                        linkText={t('readMore')}
+                        />
 
-                        <div className="my-2">
-                            <h2 className="text-2xl mb-2">{t('checkSystem')}</h2>
-                            <p className="text-gray-600">{t('rightTxt2')}</p>
-                            <a href="#" className="mt-2 mb-4 block text-blue-800 font-semibold hover:underline">{t('demoVersion')}&gt;</a>
-                            <hr className="text-gray-300 "/>
-                        </div>
+                        <InfoCard 
+                        title={t('checkSystem')}
+                        description={t('rightTxt2')}
+                        linkText={t('demoVersion')}
+                        linkStyle="text-blue-800 font-semibold hover:underline"
+                        />
 
-                        <div className="my-2">
-                            <h2 className="text-2xl mb-2">{t('bankingWithToken')}</h2>
-                            <p className="text-gray-600">{t('rightTxt3')}</p>
-                            <a href="#" className="mt-2 mb-4 block hover:underline hover:text-blue-800">{t('learnMore')}&gt;</a>
-                        </div>
+                        <InfoCard 
+                        title={t('bankingWithToken')}
+                        description={t('rightTxt3')}
+                        linkText={t('learnMore')}
+                        showDivider={false}/>
                     </section>
                 </div>
             </div>
             <ContactsFooter />
             <Footer/>
-        </div>
-    )
-}
-
-const Input = ({
-    label,
-    name,
-    type,
-    required,
-    value,
-    onChange,
-    error,
-    icon: Icon,
-}: any) => {
-    return (
-        <div className="mb-4">
-            <label htmlFor={name} className="block text-md font-medium text-gray-700 mb-1">
-                {required && <span className="text-red-500">*</span>} {label}
-            </label>
-            <div className="w-full relative">
-                {Icon && (
-                    <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-                        <Icon />
-                    </div>
-                )}
-                <input 
-                 id={name}
-                 name={name}
-                 type={type}
-                 value={value}
-                 onChange={onChange}
-                 className={`${Icon ? 'pl-10' : ''} w-full border border-gray-300 rounded-md p-2 pr-8 focus:outline-none focus:ring-1  ${error ? 'border-red-500' : 'border-gray-300 focus:ring-blue-400'}`}
-                />
-            </div>
-            <span className="block text-sm mt-1 min-h-[1.25rem] text-red-500">
-                {error || "\u00A0"}
-            </span>
         </div>
     )
 }
