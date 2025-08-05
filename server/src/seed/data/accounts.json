@@ -1,0 +1,35 @@
+[
+    {
+        "username": "admin",
+        "accountNumber": "91501BG10BGNW0WT7",
+        "accountType": "Разпл. сметка физ. лица",
+        "startingBalance": 49620000,
+        "balance": 51000,
+        "availableBalance": 50150000,
+        "feesOwed": 2.33,
+        "currency": "BGN",
+        "status": "active"
+    },
+    {
+        "username": "admin",
+        "accountNumber": "915010BGN0WQDF",
+        "accountType": "Свободно разпл. сметка",
+        "startingBalance": 28000,
+        "balance": 25000,
+        "availableBalance": 25000,
+        "feesOwed": 3.5,
+        "currency": "BGN",
+        "status": "active"
+    },
+    {
+        "username": "admin",
+        "accountNumber": "90501004592444",
+        "accountType": "Разпл сметка физ лица",
+        "startingBalance": 100,
+        "balance": 0.1,
+        "availableBalance": 0.1,
+        "feesOwed": 2.74,
+        "currency": "USD",
+        "status": "active"
+    }
+]

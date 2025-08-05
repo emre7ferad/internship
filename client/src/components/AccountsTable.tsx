@@ -1,6 +1,6 @@
-import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { useEffect, useState } from "react";
+import { accountService, type Account } from "../services/accountService";
 import { IoIosPaper, IoIosSettings } from "react-icons/io";
 import TablesBtn from "./TablesBtn";
 import { BiSolidCoinStack } from "react-icons/bi";
@@ -8,44 +8,52 @@ import { FaAlignLeft, FaCoins } from "react-icons/fa";
 import { MdAllInbox } from "react-icons/md";
 import { useTranslation } from "react-i18next";
 
-interface Account {
-    _id: string;
-    accountNumber: string;
-    accountType: string;
-    currency: string;
-    availableBalance: number;
-    startingBalance: number;
-    balance: number;
-    feesOwed: number;
-}
-
-
 const AccountsTable = () => {
     const { user } = useAuth();
     const [accounts, setAccounts] = useState<Account[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const { t } = useTranslation('dashboard')
 
     useEffect(() => {
         if (user?.userId) {
-            axios.get(`/api/accounts/user/${user.userId}`)
-                .then(res => {
-                    if (Array.isArray(res.data)) {
-                        setAccounts(res.data)
-                    } else {
-                        console.error('Expected array but got:', res.data);
-                        setAccounts([]);
-                    }
-                })
-                .catch(err => {
-                    console.error('Failed to fetch accounts: ', err);
-                    setAccounts([]);
-                })
-                .finally(() => setLoading(false));
+            fetchAccounts();
         }
     }, [user]);
 
+    const fetchAccounts = async () => {
+        if (!user?.userId) return;
+
+        setLoading(true);
+        setError(null);
+        try {
+            const data = await accountService.getUserAccounts(user.userId);
+            setAccounts(data);
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Failed to fetch accounts';
+            setError(errorMessage);
+            console.error('Failed to fetch accounts: ', errorMessage);
+        } finally {
+            setLoading(false);
+        }
+    };
+    const handleRefresh = () => {
+        fetchAccounts();
+    }
+
     if (loading) return <p className="p-4">{t('loadingAccounts')}</p>;
+
+    if (error) return (
+        <div className="p-4 text-red-500">
+            <p>Error: {error}</p>
+            <button
+                onClick={handleRefresh}
+                className="mt-2 px-4 py-2 bg-blue-800 text-white hover:bg-blue-600"
+            >
+                {t('retry')}
+            </button>
+        </div>
+    );
 
     return (
         <section className="border my-5 border-gray-300 shadow-md">

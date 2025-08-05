@@ -27,7 +27,7 @@
     "paymentsToSebra": "Плащания към SEBRA",
     "creditTransfer": "Кредитен превод",
     "innerBranchTransfer": "Вътрешноклонов превод",
-    "pruchaseSaleCurrency": "Покупка/продажба на валута",
+    "purchaseSaleCurrency": "Покупка/продажба на валута",
     "courseNegotiation": "Договаряне на курс",
     "registers": "Регистри",
     "regPerTransfers": "Регистър на пер.преводи",
@@ -67,7 +67,7 @@
     "exchangeRates": "Валутни курсове",
     "news": "Новини",
     "sales": "Промоции",
-    "additionaly": "Допълнително",
+    "additionally": "Допълнително",
     "help": "Помощ",
     "toWebsite": "Към сайта",
     "mobileApp": "Мобилно приложение",
@@ -99,7 +99,7 @@
     "forSignature": "За подпис",
     "typeOfPayment": "Вид плащане",
     "payer": "Платец",
-    "Receiver": "Получател",
+    "receiver": "Получател",
     "amountAndCurrency": "Сума и валута",
     "transferOrder": "Преводно нареждане",
     "intrabankTransfer": "Вътрешнобанков превод",
@@ -114,5 +114,6 @@
     "security": "Сигурност",
     "activated": "Активирана",
     "notActivated": "Неактивирана",
-    "payOff": "Погасете"
+    "payOff": "Погасете",
+    "retry": "Опитайте отново"
 }

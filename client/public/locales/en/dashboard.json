@@ -27,7 +27,7 @@
     "paymentsToSebra": "Payments to SEBRA",
     "creditTransfer": "Credit transfer",
     "innerBranchTransfer": "Inner branch transfer",
-    "pruchaseSaleCurrency": "Purchase/sale of currency",
+    "purchaseSaleCurrency": "Purchase/sale of currency",
     "courseNegotiation": "Course negotiation",
     "registers": "Registers",
     "regPerTransfers": "Register of transfers",
@@ -67,7 +67,7 @@
     "exchangeRates": "Exchange rates",
     "news": "News",
     "sales": "Sales",
-    "additionaly": "Additional",
+    "additionally": "Additional",
     "help": "Help",
     "toWebsite": "To website",
     "mobileApp": "Mobile app",
@@ -99,7 +99,7 @@
     "forSignature": "For signature",
     "typeOfPayment": "Type of payment",
     "payer": "Payer",
-    "Receiver": "Receiver",
+    "receiver": "Receiver",
     "amountAndCurrency": "Amount and currency",
     "transferOrder": "Transfer order",
     "intrabankTransfer": "Intrabank transfer",
@@ -114,5 +114,6 @@
     "security": "Security",
     "activated": "Activated",
     "notActivated": "Not activated",
-    "payOff": "Pay off"
+    "payOff": "Pay off",
+    "retry": "Retry"
 }

@@ -1,6 +1,7 @@
 import { createContext, useState, useContext, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { jwtDecode } from 'jwt-decode';
+import { logoutUser } from '../services/authService';
 
 interface User {
   userId: string; // Changed from 'id' to 'userId' to match the JWT payload
@@ -45,10 +46,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
-    setToken(null);
+  const logout = async () => {
+    try {
+      await logoutUser();
+    } catch (error) {
+      console.error('Failed to logout:', error);
+    } finally {
+      localStorage.removeItem('token');
+      setUser(null);
+      setToken(null);
+    }
   };
 
   return (

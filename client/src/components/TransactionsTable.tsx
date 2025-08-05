@@ -1,54 +1,77 @@
-import axios from "axios";
 import { useAuth } from "../context/AuthContext";
+import { transactionService } from "../services/transactionService";
+import type { Transaction } from "../services/transactionService";
+import { accountService } from "../services/accountService";
 import { useEffect, useState } from "react";
 import { IoIosArrowDown, IoIosArrowUp, IoIosSettings } from "react-icons/io";
 import { useTranslation } from "react-i18next";
 
-interface Transaction {
-    _id: string;
-    date: Date;
-    type: 'deposit' | 'withdrawal' | 'transfer';
-    amount: number;
-    currency: string;
-    description: string;
-    account: {
-        _id: string;
-        accountNumber: string;
-    }
-}
-
 const TransactionsTable = () => {
     const { user } = useAuth();
-    const [transactions, setTransactions] = useState<Transaction[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
     const { t } = useTranslation('dashboard')
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
+
+    const fetchTransactions = async (accountId: string) => {
+        if (!user?.userId) return;
+
+        setLoading(true);
+        setError(null);
+        try {
+            const data = await transactionService.getTransactionByAccount(accountId);
+            setTransactions(data);
+            setSelectedAccount(accountId);
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Failed to fetch transactions';
+            setError(errorMessage);
+            console.error('Failed to fetch transactions: ', errorMessage);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleRefresh = async () => {
+        if (selectedAccount) {
+            await fetchTransactions(selectedAccount);
+        }
+    }
 
     useEffect(() => {
-        if (user?.userId) {
-            axios.get(`api/accounts/user/${user.userId}`)
-                .then(accountsRes => {
-                    if (Array.isArray(accountsRes.data) && accountsRes.data.length > 0) {
-                        const firstAccount = accountsRes.data[0];
-                        setSelectedAccount(firstAccount._id)
+        const loadInitialData = async () => {
+            if (!user?.userId) return;
 
-                        return axios.get(`api/transactions/account/${firstAccount._id}`);
-                    }
-                    return Promise.reject('No accounts found');
-                })
-                .then(transactionsRes => {
-                    if (Array.isArray(transactionsRes.data)) {
-                        setTransactions(transactionsRes.data);
-                    } else {
-                        console.error('Expected array but got: ', transactionsRes.data);
-                        setTransactions([]);
-                    }
-                })
-                .finally(() => setLoading(false))
-        }
+            setLoading(true);
+            try {
+                const accounts = await accountService.getUserAccounts(user.userId);
+                if (accounts.length > 0) {
+                    await fetchTransactions(accounts[0]._id);
+                }
+            } catch (error) {
+                const errorMessage = error instanceof Error ? error.message : 'Failed to load data';
+                setError(errorMessage);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadInitialData();
     }, [user]);
 
     if (loading) return <p className="p-4">{t('loadingTransactions')}</p>
+
+    if (error) return (
+        <div className="p-4 text-red-500">
+            <p>Error: {error}</p>
+            <button
+                onClick={handleRefresh}
+                className="mt-2 px-4 py-2 bg-blue-800 text-white hover:bg-blue-600"
+            >
+                {t('retry')}
+            </button>
+        </div>
+    );
 
     const getTransactionTypeLabel = (type: string) => {
         switch(type) {

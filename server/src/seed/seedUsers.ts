@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 import User from '../models/User';
 
 export async function seedUsers() {
-    const filePath = path.join(__dirname, 'data', 'user.json');
+    const filePath = path.join(__dirname, 'data', 'users.json');
 
     const users = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
 

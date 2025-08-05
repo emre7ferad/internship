@@ -1,0 +1,153 @@
+{
+    "mainItems": [
+        {
+            "type": "button",
+            "label": "newTransfer",
+            "icon": "BiSolidCoinStack",
+            "className": "bg-red-500 px-28 m-1 lg:px-11 lg:m-2 text-lg cursor-pointer hover:bg-red-700 text-white font-semibold p-1 my-1"
+        },
+        {
+            "type": "link",
+            "label": "home",
+            "icon": "RiPieChart2Fill",
+            "className": "text-blue-800 cursor-pointer py-2 px-2"
+        },
+        {
+            "type": "dropdown",
+            "label": "inquiries",
+            "icon": "IoIosPaper",
+            "children": [
+                { "label": "groupPos", "href": "#"},
+                { "label": "transferPos", "href": "#"},
+                { "label": "accountsBalance", "href": "#"},
+                { "label": "dailyReport", "href": "#"},
+                { "label": "doneServices", "href": "#"},
+                { "label": "sentSms", "href": "#"},
+                { "label": "owedFeesTaxes", "href": "#"},
+                { "label": "swiftTransfers", "href": "#"},
+                { "label": "sessions", "href": "#"}
+            ]
+        },
+        {
+            "type": "dropdown",
+            "label": "payments",
+            "icon": "IoIosCash",
+            "children": [
+                { "type": "section", "label": "transfersLbl"},
+                { "label": "newCreditTransfer", "href": "#"},
+                { "label": "paymentsBudget", "href": "#"},
+                { "label": "directDebit", "href": "#"},
+                { "label": "massDebit", "href": "#"},
+                { "label": "fileTransfers", "href": "#"},
+                { "label": "newPeriodicTransfer", "href": "#"},
+                { "label": "paymentsToSebra", "href": "#"},
+                { "label": "creditTransfer", "href": "#", "suffix": " CY"},
+                { "label": "innerBranchTransfer", "href": "#", "suffix": " CY"},
+                { "type": "section", "label": "purchaseSaleCurrency"},
+                { "label": "purchaseSaleCurrency", "href": "#"},
+                { "label": "courseNegotiation", "href": "#"},
+                { "type": "section", "label": "registers" },
+                { "label": "regPerTransfers", "href": "#"},
+                { "label": "reciversTransfers", "href": "#"}
+            ]
+        },
+        {
+            "type": "dropdown",
+            "label": "statements",
+            "icon": "MdAllInbox",
+            "children": [
+                { "label": "accountStatement", "href": "#"},
+                { "label": "creditCardStatement", "href": "#"}
+            ]
+        },
+        {
+            "type": "link",
+            "label": "accounts",
+            "icon": "IoIosPaper",
+            "className": "custom-li"
+        },
+        {
+            "type": "link",
+            "label": "deposits",
+            "icon": "BsSafeFill",
+            "className": "custom-li"
+        },
+        {
+            "type": "link",
+            "label": "cards",
+            "icon": "FaCreditCard",
+            "className": "custom-li"
+        },
+        {
+            "type": "link",
+            "label": "signatureTransfers",
+            "icon": "FaPenAlt",
+            "className": "custom-li"
+        },
+        {
+            "type": "link",
+            "label": "orderedDocuments",
+            "icon": "IoDocumentsSharp",
+            "className": "custom-li"
+        },
+        {
+            "type": "dropdown",
+            "label": "services",
+            "icon": "IoIosMailOpen",
+            "children": [
+                { "label": "emailReports", "href": "#"},
+                { "label": "retrivedEmail", "href": "#"},
+                { "label": "cardsAuthorizationsEmail", "href": "#"},
+                { "label": "swiftTransfersEmail", "href": "#"}
+            ]
+        },
+        {
+            "type": "dropdown",
+            "label": "communalServices",
+            "icon": "FaWallet",
+            "children": [
+                { "type": "section", "label": "debtsPayment" },
+                { "label": "waitingDebts", "href": "#"},
+                { "label": "payFeesAndTaxes", "href": "#"},
+                { "label": "oneTimePay", "href": "#"},
+                { "type": "section", "label": "subscriberAccounts" },
+                { "label": "addSubAcc", "href": "#"},
+                { "label": "regSubAcc", "href": "#"},
+                { "type": "section", "label": "others" },
+                { "label": "emailNotifications", "href": "#"},
+                { "label": "paymentHistory", "href": "#"}
+            ]
+        },
+        {
+            "type": "dropdown",
+            "label": "declarations",
+            "icon": "MdEditDocument",
+            "children": [
+                { "label": "noiDeclaration", "href": "#"},
+                { "label": "statForm", "href": "#"},
+                { "label": "declarationOriginFunds", "href": "#"},
+                { "label": "declarationCrossBorderTransfers", "href": "#"}
+            ]
+        }
+    ],
+    "infoSections": [
+        {
+            "title": "fibankInfo",
+            "items": [
+                { "label": "branches", "icon": "BsBank2", "href": "#"},
+                { "label": "atms", "icon": "GrAtm", "href": "#"},
+                { "label": "exchangeRates", "icon": "IoStatsChart", "href": "#"},
+                { "label": "news", "icon": "FaNewspaper", "href": "#"},
+                { "label": "sales", "icon": "MdDiscount", "href": "#"}
+            ]
+        },
+        {
+            "title": "additionally",
+            "items": [
+                { "label": "help", "icon": "BsInfoLg", "href": "#"},
+                { "label": "toWebsite", "icon": "FaDesktop", "href": "#"},
+                { "label": "mobileApp", "icon": "FaAndroid", "href": "#", "secondaryIcon": "FaApple"}
+            ]
+        }
+    ]
+}

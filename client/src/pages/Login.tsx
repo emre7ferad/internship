@@ -23,8 +23,8 @@ const Login: React.FC = () => {
         e.preventDefault()
 
         const newErrors = {
-            username: !username.trim() ? `${t('errorUsername')}` : errors.username || "",
-            password: !password.trim() ? `${t('errorPassword')}` : errors.password || "",  
+            username: !username.trim() ? `${t('errorUsername')}` : "",
+            password: !password.trim() ? `${t('errorPassword')}` : "",  
         };
 
         setErrors(newErrors)
@@ -36,9 +36,11 @@ const Login: React.FC = () => {
             const data = await loginUser(username, password);
             
             auth.login(data.token);
-            navigate ('/dashboard');
+            navigate('/dashboard');
         } catch (err: any) {
             if (err.response && err.response.status === 401) {
+                setUsername('');
+                setPassword('');
                 setErrors((prev) => ({
                     ...prev,
                     general: err.response.data?.error || `${t('invalidInput')}`
@@ -131,8 +133,11 @@ const Login: React.FC = () => {
 
                             <a href="#" className="text-sm text-gray-500 mt-0 mb-4 block hover:underline">Забравена парола?</a>
 
-                            <button className="w-full cursor-pointer bg-blue-800 text-2xl text-white py-2 px-2 hover:bg-blue-600">
-                            {t('loginFibank')}
+                            <button 
+                                type="submit"
+                                className="w-full cursor-pointer bg-blue-800 text-2xl text-white py-2 px-2 hover:bg-blue-600"
+                            >
+                                {t('loginFibank')}
                             </button>
                             <a href="$" className="w-full block text-center mt-3 cursor-pointer bg-red-500 text-2xl text-white py-2 px-2 hover:bg-red-700"
                             >{t('loginEFibank')}
