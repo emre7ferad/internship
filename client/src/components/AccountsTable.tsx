@@ -1,80 +1,106 @@
-import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { useEffect, useState } from "react";
+import { accountService, type Account } from "../services/accountService";
 import { IoIosPaper, IoIosSettings } from "react-icons/io";
 import TablesBtn from "./TablesBtn";
 import { BiSolidCoinStack } from "react-icons/bi";
 import { FaAlignLeft, FaCoins } from "react-icons/fa";
 import { MdAllInbox } from "react-icons/md";
-
-interface Account {
-    _id: string;
-    accountNumber: string;
-    accountType: string;
-    currency: string;
-    availableBalance: number;
-    startingBalance: number;
-    balance: number;
-    feesOwed: number;
-}
-
+import { useTranslation } from "react-i18next";
+import AccountSelectionModal from "./AccountSelectionModal";
 
 const AccountsTable = () => {
     const { user } = useAuth();
     const [accounts, setAccounts] = useState<Account[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const { t } = useTranslation('dashboard')
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedAccounts, setSelectedAccounts] = useState<Account[]>([]);
 
     useEffect(() => {
         if (user?.userId) {
-            axios.get(`/api/accounts/user/${user.userId}`)
-                .then(res => {
-                    if (Array.isArray(res.data)) {
-                        setAccounts(res.data)
-                    } else {
-                        console.error('Expected array but got:', res.data);
-                        setAccounts([]);
-                    }
-                })
-                .catch(err => {
-                    console.error('Failed to fetch accounts: ', err);
-                    setAccounts([]);
-                })
-                .finally(() => setLoading(false));
+            fetchAccounts();
         }
     }, [user]);
 
-    if (loading) return <p className="p-4">Зареждане на сметки...</p>;
+    const fetchAccounts = async () => {
+        if (!user?.userId) return;
+
+        setError(null);
+        try {
+            const data = await accountService.getUserAccounts(user.userId);
+            setAccounts(data);
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : t('failedToFetchAccounts');
+            setError(errorMessage);
+            console.error('Failed to fetch accounts: ', errorMessage);
+        }
+    };
+
+    const handleRefresh = () => {
+        fetchAccounts();
+    };
+
+    const handleSettingsClick = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleModalClose = () => {
+        setIsModalOpen(false);
+    }
+
+    const handleModalSave = (accounts: Account[]) => {
+        setSelectedAccounts(accounts);
+        console.log('Selected accounts: ', accounts);
+    }
+
+    const displayAccounts = selectedAccounts.length > 0 ? selectedAccounts : accounts.slice(0, 3);
+
+    if (error) return (
+        <div className="p-4 text-red-500">
+            <p>Error: {error}</p>
+            <button
+                onClick={handleRefresh}
+                className="mt-2 px-4 py-2 bg-blue-800 text-white hover:bg-blue-600"
+            >
+                {t('retry')}
+            </button>
+        </div>
+    );
 
     return (
+        <>
         <section className="border my-5 border-gray-300 shadow-md">
             <div className="flex justify-between items-stretch border-b border-gray-300 bg-white">
-                <h2 className="text-lg pl-4 py-2 font-semibold flex items-center">СМЕТКИ</h2>
+                <h2 className="text-lg pl-4 py-2 font-semibold flex items-center uppercase">{t('accounts')}</h2>
                 <div className="flex items-stretch">
                     <a href="#" className="flex items-center justify-center border-l border-gray-300 hover:text-blue-800">
-                        Вижте всички &gt;
+                        {t('seeAll')} &gt;
                     </a>
-                    <div className="relative group flex items-center hover:text-blue-800 cursor-pointer text-gray-700 justify-center border-l border-gray-300 w-12">
-                        <button>
+                    <div
+                    onClick={handleSettingsClick} 
+                    className="relative group flex items-center hover:text-blue-800 cursor-pointer text-gray-700 justify-center border-l border-gray-300 w-12">
+                        <button onClick={handleSettingsClick}>
                             <IoIosSettings className="text-lg cursor-pointer" />
                         </button>
-                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block bg-white text-black font-semibold border border-gray-300 text-md px-2 py-1 whitespace-nowrap z-10">
-                            НАСТРОЙКИ
+                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block bg-white text-black font-semibold border border-gray-300 text-md px-2 py-1 whitespace-nowrap z-10 uppercase">
+                            {t('settings')}
                         </div>
                     </div>
                 </div>
             </div>
             <div className="lg:hidden text-center">
-                {accounts.map(acc => (
+                {displayAccounts.map(acc => (
                     <div key={acc._id} className="border-b p-4">
                         <div className="font-bold">{acc.accountType}</div>
-                        <div>Сметка: {acc.accountNumber}</div>
-                        <div>Валута: {acc.currency}</div>
-                        <div>Разполагаемост: {acc.availableBalance.toFixed(2)}</div>
-                        <div>Начално салдо: {acc.startingBalance.toFixed(2)}</div>
-                        <div>Текущо салдо: {acc.balance.toFixed(2)}</div>
-                        <div className="text-blue-800">Такси: {acc.feesOwed.toFixed(2)}</div>
+                        <div>{t('account')}: {acc.accountNumber}</div>
+                        <div>{t('currency')}: {acc.currency}</div>
+                        <div>{t('availability')}: {acc.availableBalance.toFixed(2)}</div>
+                        <div>{t('starting')} {t('todayBalance')}: {acc.startingBalance.toFixed(2)}</div>
+                        <div>{t('currentBalance')} {acc.balance.toFixed(2)}</div>
+                        <div className="text-blue-800">{t('owed')} {t('sumsOfFees')}: {acc.feesOwed.toFixed(2)}</div>
                         <div className="flex mt-2 gap-2 justify-center">
-                            <TablesBtn icon={<BiSolidCoinStack/>} ariaLabel="НОВ ПРЕВОД"/>
+                            <TablesBtn icon={<BiSolidCoinStack/>} ariaLabel={t('newTransfer')}/>
                             <TablesBtn icon={<FaAlignLeft/>}/>
                             <TablesBtn icon={<FaCoins/>}/>
                             <TablesBtn icon={<MdAllInbox/>}/>
@@ -86,17 +112,17 @@ const AccountsTable = () => {
                 <table className="w-full text-left">
                     <thead className="bg-gray-100 text-center">
                         <tr>
-                            <td className="py-2 pl-4 w-68 text-left">Сметка</td>
-                            <td className="py-2 w-18">Валута</td>
-                            <td className="py-2 w-40">Разполагаемост</td>
-                            <td className="py-2 w-40">Начално<br />салдо за деня</td>
-                            <td className="py-2">Текущо салдо</td>
-                            <td className="py-2">Дължими<br />суми от такси</td>
-                            <td className="py-2 w-40">Действия</td>
+                            <td className="py-2 pl-4 w-68 text-left">{t('account')}</td>
+                            <td className="py-2 w-18">{t('currency')}</td>
+                            <td className="py-2 w-40">{t('availability')}</td>
+                            <td className="py-2 w-40">{t('starting')}<br />{t('todayBalance')}</td>
+                            <td className="py-2">{t('currentBalance')}</td>
+                            <td className="py-2">{t('owed')}<br />{t('sumsOfFees')}</td>
+                            <td className="py-2 w-40">{t('actions')}</td>
                         </tr>
                     </thead>
                     <tbody className="text-right">
-                        {accounts.map((acc, index) => (
+                        {displayAccounts.map((acc, index) => (
                             <tr key={acc._id} className={index % 2 === 1 ? 'bg-gray-100' : ''}>
                                 <td className="table-td text-left flex items-center space-x-2">
                                     <a href="#" className="inline-flex items-center justify-center bg-blue-800 rounded-full w-8 h-8">
@@ -113,7 +139,7 @@ const AccountsTable = () => {
                                 <td className="table-td">{acc.balance.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
                                 <td className="table-td text-blue-800">{acc.feesOwed.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
                                 <td className="table-td border-none flex">
-                                    <TablesBtn icon={<BiSolidCoinStack/>} ariaLabel="НОВ ПРЕВОД"/>
+                                    <TablesBtn icon={<BiSolidCoinStack/>} ariaLabel={t('newTransfer')}/>
                                     <TablesBtn icon={<FaAlignLeft/>}/>
                                     <TablesBtn icon={<FaCoins/>}/>
                                     <TablesBtn icon={<MdAllInbox/>}/>
@@ -124,6 +150,16 @@ const AccountsTable = () => {
                 </table>
             </div>
         </section>
+
+        <AccountSelectionModal
+            isOpen={isModalOpen}
+            onClose={handleModalClose}
+            onSave={handleModalSave}
+            additionalText={t('accounts')}
+            maxSelection={3}
+            selectedAccountsIds={selectedAccounts.map(acc => acc._id)}
+        />
+        </>
     );
 };
 

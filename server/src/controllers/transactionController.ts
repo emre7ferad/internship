@@ -47,11 +47,115 @@ export const createTransaction = async (req: Request, res: Response): Promise<vo
 export const getTransactionsByAccount = async (req: Request, res: Response): Promise<void> => {
   try {
     const { accountId } = req.params;
+
     const transactions = await Transaction.find({ account: accountId })
-      .sort({ date: -1 })
-      .populate('account', 'accountNumber');
+      .populate({
+        path: 'account',
+        populate: {
+          path: 'user',
+          select: 'nameCyrillic'
+        }
+      })
+      .populate({
+        path: 'senderAccount',
+        populate: {
+          path: 'user',
+          select: 'nameCyrillic'
+        }
+      })
+      .populate({
+        path: 'receiverAccount',
+        populate: {
+          path: 'user',
+          select: 'nameCyrillic'
+        }
+      })
+      .sort({ date: -1 });
+
     res.status(200).json(transactions);
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
+  }
+};
+
+export const getTransactionById = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const transaction = await Transaction.findById(req.params.id).populate('account');
+    if (!transaction) {
+      res.status(404).json({ error: 'Transaction not found' });
+      return;
+    }
+    res.status(200).json(transaction)
+  } catch (error) {
+    res.status(400).json({ error: (error as Error).message });
+  }
+};
+
+export const updateTransaction = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+
+    const transaction = await Transaction.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true, runValidators: true }
+    );
+
+    if (!transaction) {
+      res.status(404).json({ error: 'Transaction not found' });
+      return;
+    }
+
+    res.status(200).json(transaction);
+  } catch (error) {
+    res.status(400).json({ error: (error as Error).message });
+  }
+};
+
+export const deleteTransaction = async (req: Request, res: Response): Promise<void> => {
+  try{
+    const { id } = req.params;
+
+    const transaction = await Transaction.findByIdAndDelete(id);
+
+    if (!transaction) {
+      res.status(404).json({ error: 'Transaction not found' });
+      return;
+    }
+    
+    res.status(200).json({ message: 'Transaction deleted successfully' });
+  } catch (error) {
+    res.status(400).json({ error: (error as Error).message });
+  }
+};
+
+export const getTransactionSummary = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { accountId } = req.params;
+
+    const transactions = await Transaction.find({ account: accountId });
+
+    const summary = {
+      totalDeposits: transactions
+        .filter(t => t.type === 'deposit')
+        .reduce((sum, t) => sum + t.amount, 0),
+      totalWithdrawals: transactions
+        .filter(t => t.type === 'withdrawal')
+        .reduce((sum, t) => sum + t.amount, 0),
+      totalTransfers: transactions
+        .filter(t => t.type === 'transfer')
+        .reduce((sum, t) => sum + t.amount, 0),
+      balance: transactions
+        .reduce((sum, t) => {
+          if (t.type === 'deposit') return sum + t.amount;
+          if (t.type === 'withdrawal') return sum - t.amount;
+          return sum + t.amount;
+        }, 0)
+    };
+
+    res.status(200).json(summary);
+  } catch (error) {
+    res.status(400).json({ error: (error as Error).message });
   }
 };

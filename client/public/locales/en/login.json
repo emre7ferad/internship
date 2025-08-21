@@ -21,5 +21,6 @@
     "errorUsername": "Username is required!",
     "errorPassword": "Password is required!",
     "invalidInput": "Invalid username or password.",
-    "serverError": "Server error. Please try again later"
+    "serverError": "Server error. Please try again later",
+    "forgotPassword": "Forgot password?"
 }

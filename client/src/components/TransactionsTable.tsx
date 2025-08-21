@@ -1,61 +1,77 @@
-import axios from "axios";
 import { useAuth } from "../context/AuthContext";
+import { transactionService } from "../services/transactionService";
+import type { Transaction } from "../services/transactionService";
+import { accountService } from "../services/accountService";
 import { useEffect, useState } from "react";
 import { IoIosArrowDown, IoIosArrowUp, IoIosSettings } from "react-icons/io";
-
-interface Transaction {
-    _id: string;
-    date: Date;
-    type: 'deposit' | 'withdrawal' | 'transfer';
-    amount: number;
-    currency: string;
-    description: string;
-    account: {
-        _id: string;
-        accountNumber: string;
-    }
-}
+import { useTranslation } from "react-i18next";
 
 const TransactionsTable = () => {
     const { user } = useAuth();
+    const { t } = useTranslation('dashboard')
     const [transactions, setTransactions] = useState<Transaction[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
 
-    useEffect(() => {
-        if (user?.userId) {
-            axios.get(`api/accounts/user/${user.userId}`)
-                .then(accountsRes => {
-                    if (Array.isArray(accountsRes.data) && accountsRes.data.length > 0) {
-                        const firstAccount = accountsRes.data[0];
-                        setSelectedAccount(firstAccount._id)
+    const fetchTransactions = async (accountId: string) => {
+        if (!user?.userId) return;
 
-                        return axios.get(`api/transactions/account/${firstAccount._id}`);
-                    }
-                    return Promise.reject('No accounts found');
-                })
-                .then(transactionsRes => {
-                    if (Array.isArray(transactionsRes.data)) {
-                        setTransactions(transactionsRes.data);
-                    } else {
-                        console.error('Expected array but got: ', transactionsRes.data);
-                        setTransactions([]);
-                    }
-                })
-                .finally(() => setLoading(false))
+        setError(null);
+        try {
+            const data = await transactionService.getTransactionByAccount(accountId);
+            setTransactions(data);
+            setSelectedAccount(accountId);
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Failed to fetch transactions';
+            setError(errorMessage);
+            console.error('Failed to fetch transactions: ', errorMessage);
         }
+    };
+
+    const handleRefresh = async () => {
+        if (selectedAccount) {
+            await fetchTransactions(selectedAccount);
+        }
+    }
+
+    useEffect(() => {
+        const loadInitialData = async () => {
+            if (!user?.userId) return;
+
+            try {
+                const accounts = await accountService.getUserAccounts(user.userId);
+                if (accounts.length > 0) {
+                    await fetchTransactions(accounts[0]._id);
+                }
+            } catch (error) {
+                const errorMessage = error instanceof Error ? error.message : 'Failed to load data';
+                setError(errorMessage);
+            }
+        };
+
+        loadInitialData();
     }, [user]);
 
-    if (loading) return <p className="p-4">Зареждане на транзакции...</p>
+    if (error) return (
+        <div className="p-4 text-red-500">
+            <p>Error: {error}</p>
+            <button
+                onClick={handleRefresh}
+                className="mt-2 px-4 py-2 bg-blue-800 text-white hover:bg-blue-600"
+            >
+                {t('retry')}
+            </button>
+        </div>
+    );
 
     const getTransactionTypeLabel = (type: string) => {
         switch(type) {
             case 'deposit':
-                return 'Депозит';
+                return `${t('deposit')}`;
             case 'withdrawal':
-                return 'Теглене';
+                return `${t('withdrawal')}`;
             case 'transfer':
-                return 'Превод';
+                return `${t('transfer')}`;
             default:
                 return type;
         }
@@ -66,20 +82,62 @@ const TransactionsTable = () => {
         return date.toLocaleDateString('bg-BG');
     };
 
+    const getReceiverOrdererName = (transaction: Transaction) => {
+        const currentAccountId = transaction.account?._id;
+
+        if (transaction.type === 'transfer') {
+
+            if (transaction.senderAccount?._id === currentAccountId) {
+                return transaction.receiverAccount?.user?.nameCyrillic || 
+                transaction.receiverAccount?.accountNumber || 
+                t('unknown');
+            } else if (transaction.receiverAccount?._id === currentAccountId) {
+                return transaction.senderAccount?.user?.nameCyrillic || 
+                transaction.senderAccount?.accountNumber || 
+                t('unknown');
+            }
+        }
+
+        return transaction.account?.user?.nameCyrillic ||
+        transaction.account?.accountNumber ||
+        t('unknown');
+    }
+
+    const getReceiverOrdererLabel = (transaction: Transaction) => {
+        const currentAccountId = transaction.account?._id;
+
+        if (transaction.type === 'transfer') {
+
+            if (transaction.senderAccount?._id === currentAccountId) {
+                return getReceiverOrdererName(transaction);
+            } else if (transaction.receiverAccount?._id === currentAccountId) {
+                return getReceiverOrdererName(transaction);
+            }
+        }
+
+        if (transaction.type === 'deposit') {
+            return getReceiverOrdererName(transaction);
+        } else if (transaction.type === 'withdrawal') {
+            return getReceiverOrdererName(transaction);
+        }
+
+        return getReceiverOrdererName(transaction);
+    }
+
     return (
         <section className="border my-5 border-gray-300 shadow-md">
             <div className="flex justify-between items-stretch border-b border-gray-300 bg-white">
-                <h2 className="text-lg pl-4 py-2 font-semibold flex items-center">ПОСЛЕДНИ 5 ПРЕВОДА</h2>
+                <h2 className="text-lg pl-4 py-2 font-semibold flex items-center uppercase">{t('lastFiveTransfers')}</h2>
                 <div className="flex items-stretch">
-                    <a href="#" className="flex items-center justify-center border-l border-gray-300 hover:text-blue-800">
-                        Вижте всички &gt;
+                    <a href="#" className="flex items-center text-center justify-center border-l border-gray-300 hover:text-blue-800">
+                        {t('seeAll')} &gt;
                     </a>
                     <div className="relative group flex items-center hover:text-blue-800 cursor-pointer text-gray-700 justify-center border-l border-gray-300 w-12">
                         <button>
                             <IoIosSettings className="text-lg cursor-pointer" />
                         </button>
-                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block bg-white text-black font-semibold border border-gray-300 text-md px-2 py-1 whitespace-nowrap z-10">
-                            НАСТРОЙКИ
+                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block bg-white text-black font-semibold border border-gray-300 text-md px-2 py-1 whitespace-nowrap z-10 uppercase">
+                            {t('settings')}
                         </div>
                     </div>
                 </div>
@@ -89,12 +147,12 @@ const TransactionsTable = () => {
             <table className="w-full text-left">
                 <thead className="bg-gray-100">
                     <tr>
-                        <td className="py-2 pl-4 w-20 text-left">Тип</td>
-                        <th className="py-2 w-24">Дата</th>
-                        <td className="py-2">Документ и референция</td>
-                        <td className="py-2">Получател/наредител</td>
-                        <td className="py-2">Сметка</td>
-                        <td className="py-2 pr-4 text-right">Сума</td>
+                        <td className="py-2 pl-4 w-20 text-left">{t('type')}</td>
+                        <th className="py-2 w-24">{t('date')}</th>
+                        <td className="py-2">{t('documentAndReference')}</td>
+                        <td className="py-2">{t('receiverOrderer')}</td>
+                        <td className="py-2">{t('account')}</td>
+                        <td className="py-2 pr-4 text-right">{t('sum')}</td>
                     </tr>
                 </thead>
                 <tbody>
@@ -107,15 +165,29 @@ const TransactionsTable = () => {
                                     ) : (
                                         <IoIosArrowDown className="text-red-500 mr-1"/>
                                     )}
-                                    {getTransactionTypeLabel(transaction.type)}
                                 </div>
                             </td>
                             <td className="table-td">{formatDate(transaction.date)}</td>
-                            <td className="table-td">{transaction.description}</td>
-                            <td className="table-td">-</td>
+                            <td className="table-td">
+                                <div className="flex flex-col">
+                                    <span className="font-medium text-sm text-blue-800">
+                                        {transaction.document || transaction.description}
+                                    </span>
+                                    <span className="text-md">
+                                        {transaction.reference}
+                                    </span>
+                                </div>
+                            </td>
+                            <td className="table-td">
+                                <span className="text-md">{getReceiverOrdererLabel(transaction)}</span>
+                            </td>
                             <td className="table-td">{transaction.account?.accountNumber}</td>
-                            <td className={`py-3 pr-4 text-right ${transaction.type === 'deposit' ? 'text-green-500' : 'text-red-500'}`}>
-                                {transaction.type === 'withdrawal' ? '-' : '+'}
+                            <td className={`py-3 pr-4 text-right`}>
+                                {transaction.type === 'withdrawal' ? (
+                                  <span className="text-red-600 font-extrabold text-lg">- </span>
+                                ) : (
+                                  <span className="text-green-600 font-extrabold text-lg">+ </span>
+                                )}
                                 {transaction.amount.toLocaleString('bg-BG', { minimumFractionDigits: 2})} {transaction.currency}
                             </td>
                         </tr>
@@ -134,12 +206,15 @@ const TransactionsTable = () => {
                             )}
                             <span>{getTransactionTypeLabel(transaction.type)}</span>
                         </div>
-                        <div><span className="font-medium">Дата:</span> {formatDate(transaction.date)}</div>
-                        <div><span className="font-medium">Референция:</span> {transaction.description}</div>
-                        <div><span className="font-medium">Получател/Наредител:</span> -</div>
-                        <div><span className="font-medium">Сметка:</span> {transaction.account?.accountNumber}</div>
+                        <div><span className="font-medium">{t('date')}:</span> {formatDate(transaction.date)}</div>
+                        <div><span className="font-medium">{t('documentAndReference')}:</span> 
+                            <div className="text-lg text-blue-800">{transaction.document || transaction.description}</div>
+                            <div className="text-md">{transaction.reference}</div>
+                        </div>
+                        <div><span className="font-medium">{t('receiverOrderer')}:</span> -</div>
+                        <div><span className="font-medium">{t('account')}:</span> {transaction.account?.accountNumber}</div>
                         <div className={`font-medium ${transaction.type === 'deposit' ? 'text-green-600' : 'text-red-600'}`}>
-                            <span>Сума: </span>
+                            <span>{t('sum')}: </span>
                             {transaction.type === 'withdrawal' ? '-' : '+'}
                             {transaction.amount.toLocaleString('bg-BG', { minimumFractionDigits: 2 })} {transaction.currency}
                         </div>
