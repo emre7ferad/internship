@@ -1,11 +1,11 @@
 import express from 'express';
 import User from '../models/User';
 import bcrypt from 'bcryptjs';
-import { authenticateToken } from '../middleware/authMiddleware';
+import { validateRegister } from '../middleware/validation';
 
 const router = express.Router();
 
-router.post('/', async (req, res) => {
+router.post('/', validateRegister, async (req, res) => {
     try {
         const {
             egn,
@@ -53,30 +53,6 @@ router.post('/', async (req, res) => {
         } else {
             res.status(400).json({ error: 'Възникна неизвестна грешка' })
         }
-    }
-});
-
-router.use(authenticateToken);
-
-router.post('/login', async(req, res) => {
-    const { username, password } = req.body;
-
-    try {
-        const user = await User.findOne({ username })
-
-        if (!user) {
-            return res.status(401).json({ error: 'Грешно потребителско име или парола' });
-        }
-
-        const passwordMatch = await bcrypt.compare(password, user.password);
-
-        if(!passwordMatch){
-            return res.status(401).json({ error: 'Грешно потребителско име или парола' });
-        }
-
-        res.status(200).json({ message: 'Успешен вход', user})
-    } catch (err) {
-        res.status(500).json({ error: 'Грешка при вход' })
     }
 });
 

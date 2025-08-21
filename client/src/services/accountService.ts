@@ -1,6 +1,5 @@
-import api from '../axiosConfig';
 import { API_ENDPOINTS } from '../utils/apiUtils'
-import { handleApiError } from '../utils/apiUtils';
+import { getList, http } from './http';
 
 export interface Account {
     _id: string;
@@ -51,102 +50,42 @@ class AccountService {
 
     /* Fetch all accounts for a specific user */
     async getUserAccounts(userId: string): Promise<Account[]> {
-        try {
-            const response = await api.get(API_ENDPOINTS.accounts.userAccounts(userId));
-
-            if (!Array.isArray(response.data)) {
-                throw new Error('Expected array of accounts but got different format');
-            }
-
-            return response.data;
-        } catch (error) {
-            const errorMessage = handleApiError(error);
-            console.error('Failed to fetch user accounts:', errorMessage);
-            throw new Error(errorMessage);
-        }
+        return getList<Account>(API_ENDPOINTS.accounts.userAccounts(userId));
     }
 
     /* Fetch specific account (by Id) */
     async getAccountDetails(accountId: string): Promise<Account> {
-        try {
-            const response = await api.get(API_ENDPOINTS.accounts.accountDetails(accountId));
-            return response.data;
-        } catch (error) {
-            const errorMessage = handleApiError(error);
-            console.error('Failed to fetch account details: ', errorMessage);
-            throw new Error(errorMessage);
-        }
+        return http.get<Account>(API_ENDPOINTS.accounts.accountDetails(accountId));
     }
 
     /* Create new account */
     async createAccount(accountData: CreateAccountData): Promise<Account> {
-        try {
-            const response = await api.post(API_ENDPOINTS.accounts.createAccount, accountData);
-            return response.data;
-        } catch (error) {
-            const errorMessage = handleApiError(error);
-            console.error('Failed to create account: ', errorMessage);
-            throw new Error(errorMessage);
-        }
+        return http.post<Account>(API_ENDPOINTS.accounts.createAccount, accountData);
     }
 
     /* Update account details */
     async updateAccount(accountId: string, accountData: UpdateAccountData): Promise<Account> {
-        try {
-            const response = await api.put(API_ENDPOINTS.accounts.updateAccount(accountId), accountData);
-            return response.data;
-        } catch (error) {
-            const errorMessage = handleApiError(error);
-            console.error('Failed to update account: ', errorMessage);
-            throw new Error(errorMessage);
-        }
+        return http.put<Account>(API_ENDPOINTS.accounts.updateAccount(accountId), accountData);
     }
 
     /* Update account balance */
     async updateBalance(accountId: string, balanceData: UpdateBalanceData): Promise<Account> {
-        try {
-            const response = await api.patch(API_ENDPOINTS.accounts.updateBalance(accountId), balanceData);
-            return response.data;
-        } catch (error) {
-            const errorMessage = handleApiError(error);
-            console.error('Failed to update account balance: ', errorMessage);
-            throw new Error(errorMessage);
-        }
+        return http.patch<Account>(API_ENDPOINTS.accounts.updateBalance(accountId), balanceData);
     }
 
     /* Deactivate account */
     async deactivateAccount(accountId: string): Promise<Account> {
-        try{
-            const response = await api.patch(API_ENDPOINTS.accounts.deactivateAccount(accountId));
-            return response.data;
-        } catch (error) {
-            const errorMessage = handleApiError(error);
-            console.error('Failed to deactivate account: ', errorMessage);
-            throw new Error(errorMessage);
-        }
+        return http.patch<Account>(API_ENDPOINTS.accounts.deactivateAccount(accountId));
     }
 
     /* Reactivate account */
     async reactivateAccount(accountId: string): Promise<Account> {
-        try {
-            const response = await api.patch(API_ENDPOINTS.accounts.reactivateAccount(accountId));
-            return response.data;
-        } catch (error) {
-            const errorMessage = handleApiError(error);
-            console.error('Failed to reactivate account: ', errorMessage);
-            throw new Error(errorMessage);
-        }
+        return http.patch<Account>(API_ENDPOINTS.accounts.reactivateAccount(accountId));
     }
 
     /* Delete account */
     async deleteAccount(accountId: string): Promise<void> {
-        try {
-            await api.delete(API_ENDPOINTS.accounts.delete(accountId));
-        } catch (error) {
-            const errorMessage= handleApiError(error);
-            console.error('Failed to delete account: ', errorMessage);
-            throw new Error(errorMessage);
-        }
+        return http.delete(API_ENDPOINTS.accounts.delete(accountId));
     }
 }
 

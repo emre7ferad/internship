@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import Account from "../models/Account";
 import Transaction from "../models/Transaction";
+//TO DO - Emhanced Account Controller (Step 3 in latest chat with Cursor)
 
 export const createAccount = async (req: Request, res: Response): Promise<void> => {
     try {

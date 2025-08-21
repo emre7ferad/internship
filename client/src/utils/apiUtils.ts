@@ -9,15 +9,21 @@ export const API_ENDPOINTS = {
         logout: '/api/auth/logout',
     },
 
+    users: {
+        register: '/api/users',
+        profile: (userId: string) => `/api/users/${userId}`,
+        updateProfile: (userId: string) => `/api/users/${userId}`,
+    },
+
     accounts: {
         userAccounts: (userId: string) => `/api/accounts/user/${userId}`,
         accountDetails: (accountId: string) => `/api/accounts/${accountId}`,
         createAccount: `/api/accounts`,
         updateAccount: (accountId: string) => `/api/accounts/${accountId}`,
-        updateBalance: (accountId: string) => `api/accounts/${accountId}/balance`,
-        deactivateAccount: (accountId: string) => `api/accounts/${accountId}/deactivate`,
-        reactivateAccount: (accountId: string) => `api/accounts/${accountId}/reactivate`,
-        delete: (accountId: string) => `api/accounts/${accountId}`,
+        updateBalance: (accountId: string) => `/api/accounts/${accountId}/balance`,
+        deactivateAccount: (accountId: string) => `/api/accounts/${accountId}/deactivate`,
+        reactivateAccount: (accountId: string) => `/api/accounts/${accountId}/reactivate`,
+        delete: (accountId: string) => `/api/accounts/${accountId}`,
     },
 
     transactions: {
@@ -31,9 +37,10 @@ export const API_ENDPOINTS = {
     },
 
     notifications: {
-        userNotifications: (userId: string) => `api/notifications/${userId}`,
-        markAsRead: (notificationId: string) => `api/notifications/${notificationId}/read`,
-        delete: (notificationId: string) => `api/notifications/${notificationId}`,
+        create: '/api/notifications',
+        userNotifications: (userId: string) => `/api/notifications/${userId}`,
+        markAsRead: (notificationId: string) => `/api/notifications/${notificationId}/read`,
+        delete: (notificationId: string) => `/api/notifications/${notificationId}`,
     },
 
 } as const;

@@ -7,13 +7,15 @@ import { BiSolidCoinStack } from "react-icons/bi";
 import { FaAlignLeft, FaCoins } from "react-icons/fa";
 import { MdAllInbox } from "react-icons/md";
 import { useTranslation } from "react-i18next";
+import AccountSelectionModal from "./AccountSelectionModal";
 
 const AccountsTable = () => {
     const { user } = useAuth();
     const [accounts, setAccounts] = useState<Account[]>([]);
-    const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const { t } = useTranslation('dashboard')
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedAccounts, setSelectedAccounts] = useState<Account[]>([]);
 
     useEffect(() => {
         if (user?.userId) {
@@ -24,24 +26,35 @@ const AccountsTable = () => {
     const fetchAccounts = async () => {
         if (!user?.userId) return;
 
-        setLoading(true);
         setError(null);
         try {
             const data = await accountService.getUserAccounts(user.userId);
             setAccounts(data);
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Failed to fetch accounts';
+            const errorMessage = error instanceof Error ? error.message : t('failedToFetchAccounts');
             setError(errorMessage);
             console.error('Failed to fetch accounts: ', errorMessage);
-        } finally {
-            setLoading(false);
         }
     };
+
     const handleRefresh = () => {
         fetchAccounts();
+    };
+
+    const handleSettingsClick = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleModalClose = () => {
+        setIsModalOpen(false);
     }
 
-    if (loading) return <p className="p-4">{t('loadingAccounts')}</p>;
+    const handleModalSave = (accounts: Account[]) => {
+        setSelectedAccounts(accounts);
+        console.log('Selected accounts: ', accounts);
+    }
+
+    const displayAccounts = selectedAccounts.length > 0 ? selectedAccounts : accounts.slice(0, 3);
 
     if (error) return (
         <div className="p-4 text-red-500">
@@ -56,6 +69,7 @@ const AccountsTable = () => {
     );
 
     return (
+        <>
         <section className="border my-5 border-gray-300 shadow-md">
             <div className="flex justify-between items-stretch border-b border-gray-300 bg-white">
                 <h2 className="text-lg pl-4 py-2 font-semibold flex items-center uppercase">{t('accounts')}</h2>
@@ -63,8 +77,10 @@ const AccountsTable = () => {
                     <a href="#" className="flex items-center justify-center border-l border-gray-300 hover:text-blue-800">
                         {t('seeAll')} &gt;
                     </a>
-                    <div className="relative group flex items-center hover:text-blue-800 cursor-pointer text-gray-700 justify-center border-l border-gray-300 w-12">
-                        <button>
+                    <div
+                    onClick={handleSettingsClick} 
+                    className="relative group flex items-center hover:text-blue-800 cursor-pointer text-gray-700 justify-center border-l border-gray-300 w-12">
+                        <button onClick={handleSettingsClick}>
                             <IoIosSettings className="text-lg cursor-pointer" />
                         </button>
                         <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block bg-white text-black font-semibold border border-gray-300 text-md px-2 py-1 whitespace-nowrap z-10 uppercase">
@@ -74,7 +90,7 @@ const AccountsTable = () => {
                 </div>
             </div>
             <div className="lg:hidden text-center">
-                {accounts.map(acc => (
+                {displayAccounts.map(acc => (
                     <div key={acc._id} className="border-b p-4">
                         <div className="font-bold">{acc.accountType}</div>
                         <div>{t('account')}: {acc.accountNumber}</div>
@@ -106,7 +122,7 @@ const AccountsTable = () => {
                         </tr>
                     </thead>
                     <tbody className="text-right">
-                        {accounts.map((acc, index) => (
+                        {displayAccounts.map((acc, index) => (
                             <tr key={acc._id} className={index % 2 === 1 ? 'bg-gray-100' : ''}>
                                 <td className="table-td text-left flex items-center space-x-2">
                                     <a href="#" className="inline-flex items-center justify-center bg-blue-800 rounded-full w-8 h-8">
@@ -134,6 +150,16 @@ const AccountsTable = () => {
                 </table>
             </div>
         </section>
+
+        <AccountSelectionModal
+            isOpen={isModalOpen}
+            onClose={handleModalClose}
+            onSave={handleModalSave}
+            additionalText={t('accounts')}
+            maxSelection={3}
+            selectedAccountsIds={selectedAccounts.map(acc => acc._id)}
+        />
+        </>
     );
 };
 

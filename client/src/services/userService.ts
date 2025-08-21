@@ -1,4 +1,5 @@
 import api from "../axiosConfig";
+import { API_ENDPOINTS } from "../utils/apiUtils";
 
 export interface RegisterData {
     egn: string;
@@ -15,7 +16,7 @@ export interface RegisterData {
 export const registerUser = async (userData: RegisterData) => {
     try
     {
-        const response = await api.post('/api/users', userData);
+        const response = await api.post(API_ENDPOINTS.users.register, userData);
         return response.data;
     } catch(err: any){
         if (err.response?.data) {

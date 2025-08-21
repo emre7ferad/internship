@@ -63,7 +63,7 @@ export const LoggedOutNavLinks: React.FC<LoggedOutNavLinksProps> = ({ isMobile }
               </span>
             </a>
           </li>
-          <h2 className='font-semibold px-4 py-2 border-t border-gray-300'>Връзка с нас</h2>
+          <h2 className='font-semibold px-4 py-2 border-t border-gray-300'>{t('contactUs')}</h2>
           <li className="flex items-center hover:bg-gray-100 hover:text-blue-800 cursor-pointer px-4 py-2 space-x-2">
             <span className='flex items-center justify-center'>
               <FaPhoneAlt className='flex mr-2'/>

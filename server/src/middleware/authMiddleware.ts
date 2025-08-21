@@ -14,7 +14,7 @@ export const authenticateToken = (
     const token = authHeader && authHeader.split(" ")[1];
 
     if (!token) {
-        return res.status(401).json({error: "Access denied. No token provvided"});
+        return res.status(401).json({error: "Access denied. No token provided"});
     }
 
     try {

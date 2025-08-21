@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { errorBus } from './hooks/errorBus';
+import { loadingBus } from './hooks/loadingBus';
 
 const API_URL = import.meta.env.VITE_API_URL;
 if (!API_URL) {
@@ -12,6 +14,7 @@ const api = axios.create({
 
 api.interceptors.request.use(
     (config) => {
+        loadingBus.start();
         const token = localStorage.getItem('token');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
@@ -19,20 +22,36 @@ api.interceptors.request.use(
         return config;
     },
     (error) => {
+        loadingBus.stop();
         return Promise.reject(error);
     }
 );
 
 // Response interceptor for error handling
 api.interceptors.response.use(
-    (response) => response,
+    (response) => {
+        loadingBus.stop();
+        return response;
+    },
     (error) => {
-        // Handle common errors
+        loadingBus.stop();
+        
         if (error.response?.status === 401) {
-            // Token expired or invalid - redirect to login
             localStorage.removeItem('token');
             window.location.href = '/login';
+            return Promise.reject(error);
         }
+        const message = 
+            error.response?.data?.error ||
+            error.message ||
+            'Unexpected error';
+
+        errorBus.publish({
+            message,
+            status: error.response?.status,
+            url: error.config?.url,
+        });
+
         return Promise.reject(error);
     }
 );

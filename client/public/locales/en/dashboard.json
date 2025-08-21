@@ -115,5 +115,10 @@
     "activated": "Activated",
     "notActivated": "Not activated",
     "payOff": "Pay off",
-    "retry": "Retry"
+    "retry": "Retry",
+    "noAccounts": "No accounts available",
+    "selectUpTo": "Select up to {{count}} accounts to display:",
+    "save": "Save",
+    "unknown": "Unknown",
+    "failedToFetchAccounts": "Failed to fetch accounts"
 }

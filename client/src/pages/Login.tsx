@@ -131,7 +131,7 @@ const Login: React.FC = () => {
                                 </div>
                             )}
 
-                            <a href="#" className="text-sm text-gray-500 mt-0 mb-4 block hover:underline">Забравена парола?</a>
+                            <a href="#" className="text-sm text-gray-500 mt-0 mb-4 block hover:underline">{t('forgotPassword')}</a>
 
                             <button 
                                 type="submit"

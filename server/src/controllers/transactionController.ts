@@ -47,9 +47,31 @@ export const createTransaction = async (req: Request, res: Response): Promise<vo
 export const getTransactionsByAccount = async (req: Request, res: Response): Promise<void> => {
   try {
     const { accountId } = req.params;
+
     const transactions = await Transaction.find({ account: accountId })
-      .sort({ date: -1 })
-      .populate('account', 'accountNumber');
+      .populate({
+        path: 'account',
+        populate: {
+          path: 'user',
+          select: 'nameCyrillic'
+        }
+      })
+      .populate({
+        path: 'senderAccount',
+        populate: {
+          path: 'user',
+          select: 'nameCyrillic'
+        }
+      })
+      .populate({
+        path: 'receiverAccount',
+        populate: {
+          path: 'user',
+          select: 'nameCyrillic'
+        }
+      })
+      .sort({ date: -1 });
+
     res.status(200).json(transactions);
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });

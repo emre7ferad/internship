@@ -1,4 +1,6 @@
 import express from 'express';
+import { authenticateToken } from '../middleware/authMiddleware';
+import { validateTransaction, validateTransactionUpdate } from '../middleware/validation';
 import { 
     createTransaction, 
     getTransactionsByAccount,
@@ -10,10 +12,12 @@ import {
 
 const router = express.Router();
 
-router.post('/', createTransaction);
+router.use(authenticateToken);
+
+router.post('/', validateTransaction, createTransaction);
 router.get('/account/:accountId', getTransactionsByAccount );
 router.get('/:id', getTransactionById);
-router.put('/:id', updateTransaction);
+router.put('/:id', validateTransactionUpdate, updateTransaction);
 router.delete('/:id', deleteTransaction);
 router.get('/account/:accountId/summary', getTransactionSummary);
 

@@ -1,4 +1,5 @@
 import express from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import mongoose from 'mongoose';
@@ -8,6 +9,7 @@ import messageRoutes from './routes/messages';
 import notificationRoutes from './routes/notifications'
 import accountRoutes from './routes/accounts'
 import transactionRoutes from './routes/transactions';
+import { sendErrorResponse } from './utils/errorHandler';
 
 dotenv.config();
 
@@ -35,6 +37,16 @@ app.use('/api/transactions', transactionRoutes);
 app.get('/', (_req, res) => {
   res.send('API is running...')
 })
+
+// Fallback 404 for unmatched routes
+app.use((_req, res) => {
+  res.status(404).json({ success: false, error: 'Not found' });
+});
+
+// Global error handler (uses errorHandler.ts)
+app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+  sendErrorResponse(res, err);
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on ${URL}:${PORT}`)

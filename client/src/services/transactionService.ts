@@ -1,6 +1,5 @@
-import api from "../axiosConfig";
 import { API_ENDPOINTS } from "../utils/apiUtils";
-import { handleApiError } from "../utils/apiUtils";
+import { getList, http } from "./http";
 
 export interface Transaction {
     _id: string;
@@ -9,9 +8,31 @@ export interface Transaction {
     amount: number;
     currency: string;
     description: string;
+    reference: string;
+    document: string;
+    senderAccount?: {
+        _id: string;
+        accountNumber: string;
+        user?: {
+            _id: string;
+            nameCyrillic: string;
+        };
+    };
+    receiverAccount?: {
+        _id: string;
+        accountNumber: string;
+        user?: {
+            _id: string;
+            nameCyrillic: string;
+        };
+    };
     account: {
         _id: string;
         accountNumber: string;
+        user?: {
+            _id: string;
+            nameCyrillic: string;
+        }
     };
 }
 
@@ -22,6 +43,9 @@ export interface CreateTransactionData {
     amount: number;
     currency: string;
     description: string;
+    document?: string;
+    senderAccount?: string;
+    receiverAccount?: string;
 }
 
 /* Interface for updating transaction data */
@@ -44,83 +68,32 @@ class TransactionService {
 
     /* Get transaction for a specific account */
     async getTransactionByAccount(accountId: string): Promise<Transaction[]> {
-        try {
-            const response = await api.get(API_ENDPOINTS.transactions.accountTransactions(accountId));
-
-            if (!Array.isArray(response.data)) {
-                throw new Error('Expected array of transactions but got different format');
-            }
-
-            return response.data;
-        } catch (error) {
-            const errorMessage = handleApiError(error);
-            console.error('Failed to fetch transactions: ', errorMessage);
-            throw new Error(errorMessage);
-        }
+        return getList<Transaction>(API_ENDPOINTS.transactions.accountTransactions(accountId));
     }
 
     /* Get transactions for a user (all accounts) */
     async getUserTransactions(userId: string): Promise<Transaction[]> {
-        try {
-            const response = await api.get(API_ENDPOINTS.transactions.userTransactions(userId));
-
-            if (!Array.isArray(response.data)) {
-                throw new Error('Expected array of transactions but got different format');
-            }
-
-            return response.data;
-        } catch (error) {
-            const errorMessage = handleApiError(error);
-            console.error('Failed to fetch transactions: ', errorMessage);
-            throw new Error(errorMessage);
-        }
+        return getList<Transaction>(API_ENDPOINTS.transactions.userTransactions(userId));
     }
 
     /* Get specific transaction by ID */
     async getTransactionById(transactionId: string): Promise<Transaction> {
-        try {
-            const response = await api.get(API_ENDPOINTS.transactions.transactionDetails(transactionId));
-            return response.data;
-        } catch (error) {
-            const errorMessage = handleApiError(error);
-            console.error('Failed to fetch transaction: ', errorMessage);
-            throw new Error(errorMessage);
-        }
+        return http.get<Transaction>(API_ENDPOINTS.transactions.transactionDetails(transactionId));
     }
 
     /* Create new transaction */
     async createTransaction(transactionData: CreateTransactionData): Promise<Transaction> {
-        try {
-            const response = await api.post(API_ENDPOINTS.transactions.create, transactionData);
-            return response.data;
-        } catch (error) {
-            const errorMessage = handleApiError(error);
-            console.error('Failed to create transaction: ', errorMessage);
-            throw new Error(errorMessage);
-        }
+        return http.post<Transaction>(API_ENDPOINTS.transactions.create, transactionData);
     }
 
     /* Update a transaction */
     async updateTransaction(transactionId: string, updateData: UpdateTransactionData): Promise<Transaction> {
-        try {
-            const response = await api.put(API_ENDPOINTS.transactions.update(transactionId), updateData);
-            return response.data;
-        } catch (error) {
-            const errorMessage = handleApiError(error);
-            console.error('Failed to update transaction: ', errorMessage);
-            throw new Error(errorMessage);
-        }
+        return http.put<Transaction>(API_ENDPOINTS.transactions.update(transactionId), updateData);
     }
 
     /* Delete a transaction */
     async deleteTransaction(transactionId: string): Promise<void> {
-        try {
-            await api.delete(API_ENDPOINTS.transactions.delete(transactionId));
-        } catch (error) {
-            const errorMessage = handleApiError(error);
-            console.error('Failed to delete transaction: ', errorMessage);
-            throw new Error(errorMessage);
-        }
+        return http.delete(API_ENDPOINTS.transactions.delete(transactionId));
     }
 
     /* Get transactions with pagination */
@@ -129,16 +102,7 @@ class TransactionService {
         page: number = 1, 
         limit: number = 5
     ): Promise<{ transactions: Transaction[], total: number, page: number, limit: number }> {
-        try {
-            const response = await api.get(
-                `${API_ENDPOINTS.transactions.accountTransactions(accountId)}?page=${page}&limit=${limit}`
-            );
-            return response.data;
-        } catch (error) {
-            const errorMessage = handleApiError(error);
-            console.error('Failed to fetch transactions: ', errorMessage);
-            throw new Error(errorMessage);
-        }
+        return http.get(`${API_ENDPOINTS.transactions.accountTransactions(accountId)}?page=${page}&limit=${limit}`);
     }
 
     /* Get transaction summary for an account */
@@ -148,14 +112,7 @@ class TransactionService {
         totalTransfers: number;
         balance: number;
     }> {
-        try {
-            const response = await api.get(API_ENDPOINTS.transactions.summary(accountId));
-            return response.data;
-        } catch (error) {
-            const errorMessage = handleApiError(error);
-            console.error('Failed to fetch transaction summary: ', errorMessage);
-            throw new Error(errorMessage);
-        }
+        return http.get(API_ENDPOINTS.transactions.summary(accountId));
     }
 }
 
