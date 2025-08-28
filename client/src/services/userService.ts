@@ -10,6 +10,7 @@ export interface RegisterData {
     address: string;
     username: string;
     password: string;
+    confirmPassword: string;
     isAdmin: boolean;
     lnch?: string;
 }

@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from "react";
 import type { ReactNode, FC } from "react";
 import { FiChevronDown, FiChevronRight } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
-import sidebarConfig from "../config/sidebarConfig.json";
 import { RiPieChart2Fill } from "react-icons/ri";
 import { IoIosPaper, IoIosCash, IoIosMailOpen } from "react-icons/io";
 import { MdAllInbox, MdEditDocument, MdDiscount } from "react-icons/md";
@@ -12,7 +11,10 @@ import { FaCreditCard, FaPenAlt, FaWallet, FaNewspaper, FaDesktop, FaAndroid, Fa
 import { IoDocumentsSharp, IoStatsChart } from "react-icons/io5";
 import { GrAtm } from "react-icons/gr";
 import { BiSolidCoinStack } from "react-icons/bi";
+import { useAuth } from "../context/AuthContext";
+import sidebarConfig from "../config/sidebarConfig.json";
 
+// Icon mapping
 const iconMap: Record<string, IconType> = {
   RiPieChart2Fill,
   IoIosPaper,
@@ -42,9 +44,20 @@ interface SidebarItemProps {
   label: string;
   children?: ReactNode;
   className?: string;
+  href?: string;
+  suffix?: string;
+  secondaryIcon?: IconType;
 }
 
-const SidebarItem: FC<SidebarItemProps> = ({ icon: Icon, label, children, className = "" }) => {
+const SidebarItem: FC<SidebarItemProps> = ({ 
+  icon: Icon, 
+  label, 
+  children, 
+  className = "",
+  href,
+  suffix,
+  secondaryIcon: SecondaryIcon
+}) => {
   const [hovered, setHovered] = useState(false);
   const [clickOpen, setClickOpen] = useState(false);
   const [isLargeScreen, setIsLargeScreen] = useState<boolean>(typeof window !== 'undefined' ? window.innerWidth >= 1024 : true);
@@ -76,6 +89,14 @@ const SidebarItem: FC<SidebarItemProps> = ({ icon: Icon, label, children, classN
     };
   }, [clickOpen, isLargeScreen]);
 
+  const handleClick = () => {
+    if (href) {
+      window.location.href = href;
+    } else if (!isLargeScreen && children) {
+      setClickOpen((prev) => !prev);
+    }
+  };
+
   return (
     <li
       ref={itemRef}
@@ -89,14 +110,11 @@ const SidebarItem: FC<SidebarItemProps> = ({ icon: Icon, label, children, classN
     >
       <div 
         className="custom-li-hover flex items-center justify-between w-full px-2 py-2 text-left cursor-pointer"
-        onClick={() => {
-          if (!isLargeScreen && children) {
-            setClickOpen((prev) => !prev)
-          }
-        }}>
+        onClick={handleClick}>
         <span className="flex ml-5 lg:ml-0 items-center justify-center lg:justify-start w-full">
           <Icon className="inline-block mr-2" />
           {label}
+          {suffix && <span className="ml-1">{suffix}</span>}
         </span>
         {children && <FiChevronRight className="ml-auto" />}
       </div>
@@ -124,17 +142,25 @@ const Sidebar: FC<SidebarProps> = ({
   setMoreInfoOpen
 }) => {
   const { t } = useTranslation('dashboard');
+  const { user } = useAuth();
 
   const renderChildItem = (child: any) => {
-    if(child.type === 'section') {
+    if (child.type === 'section') {
       return (
-        <p key={child.label} className="px-2 py-2 text-gray-500 text-xs uppercase">{t(child.label)}</p>
+        <p key={child.label} className="px-2 py-2 text-gray-500 text-xs uppercase">
+          {t(child.label)}
+        </p>
       );
     }
+
+    const Icon = iconMap[child.icon];
+    const SecondaryIcon = child.secondaryIcon ? iconMap[child.secondaryIcon] : undefined;
 
     return (
       <li key={child.label} className="aside-submenu">
         <a href={child.href || "#"}>
+          {Icon && <Icon className="inline-block mr-2" />}
+          {SecondaryIcon && <SecondaryIcon className="inline-block mr-2" />}
           {t(child.label)}
           {child.suffix && child.suffix}
         </a>
@@ -144,6 +170,12 @@ const Sidebar: FC<SidebarProps> = ({
 
   const renderMainItem = (item: any) => {
     const Icon = iconMap[item.icon];
+    const SecondaryIcon = item.secondaryIcon ? iconMap[item.secondaryIcon] : undefined;
+
+    if (!Icon) {
+      console.warn(`Icon not found for: ${item.icon}`);
+      return null;
+    }
 
     switch (item.type) {
       case 'button':
@@ -157,7 +189,7 @@ const Sidebar: FC<SidebarProps> = ({
       case 'link':
         return (
           <li key={item.label} className={item.className}>
-            <a href="#">
+            <a href={item.href || "#"}>
               <Icon className="inline-block mr-2" />
               {t(item.label)}
             </a>
@@ -166,7 +198,14 @@ const Sidebar: FC<SidebarProps> = ({
 
       case 'dropdown':
         return (
-          <SidebarItem key={item.label} icon={Icon} label={t(item.label)}>
+          <SidebarItem 
+            key={item.label} 
+            icon={Icon} 
+            label={t(item.label)}
+            href={item.href}
+            suffix={item.suffix}
+            secondaryIcon={SecondaryIcon}
+          >
             {item.children?.map(renderChildItem)}
           </SidebarItem>
         );
@@ -194,12 +233,12 @@ const Sidebar: FC<SidebarProps> = ({
           <ul className="text-gray-700 text-md">
             {section.items.map((item: any) => {
               const Icon = iconMap[item.icon];
-              const SecondaryIcon = item.secondaryIcon ? iconMap[item.secondaryIcon] : null;
+              const SecondaryIcon = item.secondaryIcon ? iconMap[item.secondaryIcon] : undefined;
               
               return (
                 <li key={item.label} className="custom-li">
                   <a href={item.href || "#"}>
-                    <Icon className="inline-block mr-2" />
+                    {Icon && <Icon className="inline-block mr-2" />}
                     {SecondaryIcon && <SecondaryIcon className="inline-block mr-2" />}
                     {t(item.label)}
                   </a>
@@ -220,7 +259,7 @@ const Sidebar: FC<SidebarProps> = ({
           <img src="/profile.jpg" alt="profile" className="h-8 w-8 rounded-full" />
           <div className="text-left">
             <p className="text-gray-500 text-xs">{t('user')}</p>
-            <p>{t('filipFilipov')}</p>
+            <p>{user?.username || t('filipFilipov')}</p>
           </div>
         </button>
         <button className="flex items-center space-x-2">
@@ -236,8 +275,13 @@ const Sidebar: FC<SidebarProps> = ({
         {sidebarConfig.mainItems.map(renderMainItem)}
       </ul>
       
-      {renderInfoSection(sidebarConfig.infoSections[0], infoFibankOpen, setInfoFibankOpen)}
-      {renderInfoSection(sidebarConfig.infoSections[1], moreInfoOpen, setMoreInfoOpen)}
+      {sidebarConfig.infoSections.map((section, index) => 
+        renderInfoSection(
+          section, 
+          index === 0 ? infoFibankOpen : moreInfoOpen, 
+          index === 0 ? setInfoFibankOpen : setMoreInfoOpen
+        )
+      )}
     </aside>
   );
 };

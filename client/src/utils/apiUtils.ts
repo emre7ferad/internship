@@ -13,6 +13,7 @@ export const API_ENDPOINTS = {
         register: '/api/users',
         profile: (userId: string) => `/api/users/${userId}`,
         updateProfile: (userId: string) => `/api/users/${userId}`,
+        modules: '/api/users/modules',
     },
 
     accounts: {
@@ -42,6 +43,13 @@ export const API_ENDPOINTS = {
         markAsRead: (notificationId: string) => `/api/notifications/${notificationId}/read`,
         delete: (notificationId: string) => `/api/notifications/${notificationId}`,
     },
+
+    admin: {
+        stats: '/api/admin/stats',
+        users: '/api/admin/users',
+        updateUserStatus: (userId: string) => `/api/admin/users/${userId}/status`,
+        deleteUser: (userId: string) => `/api/admin/users/${userId}`,
+    }
 
 } as const;
 
