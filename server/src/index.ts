@@ -9,6 +9,7 @@ import messageRoutes from './routes/messages';
 import notificationRoutes from './routes/notifications'
 import accountRoutes from './routes/accounts'
 import transactionRoutes from './routes/transactions';
+import adminRoutes from './routes/admin';
 import { sendErrorResponse } from './utils/errorHandler';
 
 dotenv.config();
@@ -34,6 +35,7 @@ app.use('/api/messages', messageRoutes)
 app.use('/api/notifications', notificationRoutes)
 app.use('/api/accounts', accountRoutes);
 app.use('/api/transactions', transactionRoutes);
+app.use('/api/admin', adminRoutes);
 app.get('/', (_req, res) => {
   res.send('API is running...')
 })

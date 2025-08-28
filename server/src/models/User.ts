@@ -1,14 +1,4 @@
 import mongoose from "mongoose";
-import express, { Request, Response } from 'express';
-import { upload } from "../utils/cloudinary";
-
-
-const router = express.Router();
-
-router.post('/upload', upload.single('image'), (req, res) => {
-    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-    res.status(200).json({ imageUrl: req.file.path });
-})
 
 const userSchema = new mongoose.Schema({
     egn: {
@@ -50,6 +40,11 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    role: {
+        type: String,
+        enum: ['admin', 'user'],
+        default: 'user'
+    },
     lnch: {
         type: String,
         required: false
@@ -61,6 +56,14 @@ const userSchema = new mongoose.Schema({
     messages: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Message'
+    }],
+    modules: [{
+        id: { type: String, required: true },
+        label: { type: String, required: true },
+        icon: { type: String, required: true },
+        isActive: { type: Boolean, default: true },
+        order: { type: Number, required: true },
+        description: { type: String, required: true }
     }],
     createdAt: {
         type: Date,

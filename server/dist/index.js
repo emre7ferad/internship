@@ -13,7 +13,7 @@ const messages_1 = __importDefault(require("./routes/messages"));
 const notifications_1 = __importDefault(require("./routes/notifications"));
 const accounts_1 = __importDefault(require("./routes/accounts"));
 const transactions_1 = __importDefault(require("./routes/transactions"));
-const upload_1 = __importDefault(require("./routes/upload"));
+const errorHandler_1 = require("./utils/errorHandler");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 5000;
@@ -33,9 +33,16 @@ app.use('/api/messages', messages_1.default);
 app.use('/api/notifications', notifications_1.default);
 app.use('/api/accounts', accounts_1.default);
 app.use('/api/transactions', transactions_1.default);
-app.use('/api/upload', upload_1.default);
 app.get('/', (_req, res) => {
     res.send('API is running...');
+});
+// Fallback 404 for unmatched routes
+app.use((_req, res) => {
+    res.status(404).json({ success: false, error: 'Not found' });
+});
+// Global error handler (uses errorHandler.ts)
+app.use((err, _req, res, _next) => {
+    (0, errorHandler_1.sendErrorResponse)(res, err);
 });
 app.listen(PORT, () => {
     console.log(`Server running on ${URL}:${PORT}`);

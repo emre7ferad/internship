@@ -34,5 +34,7 @@
     "newNotifications": "notifications",
     "noNewNotifications": "You don't have new notifications",
     "seeAllNotifications": "See all notifications",
-    "contactUs": "Contact us"
+    "contactUs": "Contact us",
+    "admin": "Admin",
+    "moduleManagement": "Module Management"
 } 

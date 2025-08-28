@@ -6,6 +6,8 @@ import Login from './pages/Login';
 import UnblockToken from './pages/UnblockToken';
 import Register from './pages/Register';
 import PrivateRoute from './components/PrivateRoute';
+import AdminRoute from './components/AdminRoute';
+import AdminDashboard from './pages/AdminDashboard';
 import AuthRedirect from './components/AuthRedirect';
 
 function App() {
@@ -20,6 +22,10 @@ function App() {
         
         <Route element={<PrivateRoute />}>
           <Route path='/dashboard' element={<Dashboard />} />
+        </Route>
+
+        <Route element={<AdminRoute />}>
+          <Route path='/admin' element={<AdminDashboard />} />
         </Route>
       </Routes>
     </div>

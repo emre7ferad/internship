@@ -51,6 +51,7 @@ const Register = () => {
       address: formData.address,
       username: formData.username,
       password: formData.password,
+      confirmPassword: formData.confirmPassword,
       isAdmin: false,
       lnch: lnchInput?.value || undefined
     };

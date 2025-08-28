@@ -3,12 +3,13 @@ import { transactionService } from "../services/transactionService";
 import type { Transaction } from "../services/transactionService";
 import { accountService } from "../services/accountService";
 import { useEffect, useState } from "react";
-import { IoIosArrowDown, IoIosArrowUp, IoIosSettings } from "react-icons/io";
+import { IoIosSettings } from "react-icons/io";
 import { useTranslation } from "react-i18next";
+import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 
 const TransactionsTable = () => {
     const { user } = useAuth();
-    const { t } = useTranslation('dashboard')
+    const { t, i18n } = useTranslation('dashboard')
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
@@ -79,7 +80,8 @@ const TransactionsTable = () => {
 
     const formatDate = (dateString: Date) => {
         const date = new Date(dateString);
-        return date.toLocaleDateString('bg-BG');
+        const locale = i18n.language === 'bg' ? 'bg-BG' : 'en-US';
+        return date.toLocaleDateString(locale);
     };
 
     const getReceiverOrdererName = (transaction: Transaction) => {
@@ -147,12 +149,12 @@ const TransactionsTable = () => {
             <table className="w-full text-left">
                 <thead className="bg-gray-100">
                     <tr>
-                        <td className="py-2 pl-4 w-20 text-left">{t('type')}</td>
-                        <th className="py-2 w-24">{t('date')}</th>
-                        <td className="py-2">{t('documentAndReference')}</td>
-                        <td className="py-2">{t('receiverOrderer')}</td>
-                        <td className="py-2">{t('account')}</td>
-                        <td className="py-2 pr-4 text-right">{t('sum')}</td>
+                        <td className="py-2 pl-2 w-20 text-left">{t('type')}</td>
+                        <th className="py-2 pl-2 w-24">{t('date')}</th>
+                        <td className="py-2 pl-2">{t('documentAndReference')}</td>
+                        <td className="py-2 pl-2">{t('receiverOrderer')}</td>
+                        <td className="py-2 pl-2">{t('account')}</td>
+                        <td className="py-2 pl-2 pr-4 text-right">{t('sum')}</td>
                     </tr>
                 </thead>
                 <tbody>
@@ -161,13 +163,13 @@ const TransactionsTable = () => {
                             <td className="table-td pl-4">
                                 <div className="flex items-center">
                                     {transaction.type === 'deposit' ? (
-                                        <IoIosArrowUp className="text-green-500 mr-1"/>
+                                        <FaArrowLeft className="text-green-500 mr-1"/>
                                     ) : (
-                                        <IoIosArrowDown className="text-red-500 mr-1"/>
+                                        <FaArrowRight className="text-red-500 mr-1"/>
                                     )}
                                 </div>
                             </td>
-                            <td className="table-td">{formatDate(transaction.date)}</td>
+                            <td className="table-td whitespace-nowrap">{formatDate(transaction.date)}</td>
                             <td className="table-td">
                                 <div className="flex flex-col">
                                     <span className="font-medium text-sm text-blue-800">
@@ -182,7 +184,7 @@ const TransactionsTable = () => {
                                 <span className="text-md">{getReceiverOrdererLabel(transaction)}</span>
                             </td>
                             <td className="table-td">{transaction.account?.accountNumber}</td>
-                            <td className={`py-3 pr-4 text-right`}>
+                            <td className={`py-3 pr-2 text-right`}>
                                 {transaction.type === 'withdrawal' ? (
                                   <span className="text-red-600 font-extrabold text-lg">- </span>
                                 ) : (
@@ -200,9 +202,9 @@ const TransactionsTable = () => {
                     <div key={transaction._id} className="p-4 space-y-2">
                         <div className="flex items-center space-x-2 font-semibold">
                             {transaction.type === 'deposit' ? (
-                                <IoIosArrowUp className="text-green-500" />
+                                <FaArrowLeft className="text-green-500" />
                             ) : (
-                                <IoIosArrowDown className="text-red-500" />
+                                <FaArrowRight className="text-red-500" />
                             )}
                             <span>{getTransactionTypeLabel(transaction.type)}</span>
                         </div>

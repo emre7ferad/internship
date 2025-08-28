@@ -14,7 +14,7 @@ async function run() {
         console.log('User seeding completed');
 
         await seedAccounts();
-        console.log('Account seeding completed')
+        console.log('Account seeding completed');
 
         process.exit(0);        
     } catch (err) {

@@ -33,6 +33,7 @@ export const LoggedInNavLinks: React.FC<LoggedInNavLinksProps> = ({
           />
         </NotificationsDropdown>
         <SettingsDropdown />
+
         <a href='#' className='md:border-x md:border-gray-300 px-3'>
           <img src="/profile.jpg" alt="Profile" className='h-8 w-8 rounded-full border border-gray-300 hover:cursor-pointer' />
         </a>
